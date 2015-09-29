@@ -2,24 +2,24 @@ use std::ops::Index;
 
 use num::Num;
 
-// A 2D matrix
-pub struct Matrix2<T: Num> {
+// A 2D array
+pub struct Matrix<T: Num> {
     rows: usize,
     columns: usize,
     buffer: Vec<T>,
 }
 
-impl<T: Num> Matrix2<T> {
-    pub fn new(rows: usize, columns: usize, initial: T) -> Matrix2<T> {
-        Matrix2 {
+impl<T: Num> Matrix<T> {
+    pub fn new(rows: usize, columns: usize, initial: T) -> Matrix<T> {
+        Matrix {
             rows: rows,
             columns: columns,
             buffer: vec![initial; rows*columns],
         }
     }
 
-    pub fn from_vec(rows: usize, columns: usize, vec: Vec<T>) -> Matrix2<T> {
-        Matrix2 {
+    pub fn from_vec(rows: usize, columns: usize, vec: Vec<T>) -> Matrix<T> {
+        Matrix {
             rows: rows,
             columns: columns,
             buffer: vec,
@@ -47,7 +47,7 @@ impl<T: Num> Matrix2<T> {
     }
 }
 
-impl<T: Num> Index<(usize, usize)> for Matrix2<T> {
+impl<T: Num> Index<(usize, usize)> for Matrix<T> {
     type Output = T;
 
     fn index<'a>(&'a self, index: (usize, usize)) -> &'a T {
