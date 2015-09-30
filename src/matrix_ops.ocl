@@ -1,4 +1,213 @@
-__kernel void vector_add(__global const long *A, __global const long *B, __global long *C) {
+__kernel void vector_add_f32(__global const float *A,
+                             __global const float *B,
+                             __global float *C) {
 	int i = get_global_id(0);
 	C[i] = A[i] + B[i];
+}
+
+/*__kernel void vector_add_f64(__global const double *A,
+                             __global const double *B,
+                             __global double *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}*/
+
+__kernel void vector_add_i8(__global const char *A,
+                             __global const char *B,
+                             __global char *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+__kernel void vector_add_i16(__global const short *A,
+                             __global const short *B,
+                             __global short *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+__kernel void vector_add_i32(__global const int *A,
+                             __global const int *B,
+                             __global int *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+__kernel void vector_add_i64(__global const long *A,
+                             __global const long *B,
+                             __global long *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+__kernel void vector_add_u8(__global const uchar *A,
+                             __global const uchar *B,
+                             __global uchar *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+__kernel void vector_add_u16(__global const ushort *A,
+                             __global const ushort *B,
+                             __global ushort *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+__kernel void vector_add_u32(__global const uint *A,
+                             __global const uint *B,
+                             __global uint *C) {
+	uint i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+__kernel void vector_add_u64(__global const ulong *A,
+                             __global const ulong *B,
+                             __global ulong *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] + B[i];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+__kernel void vector_sub_f32(__global const float *A,
+                             __global const float *B,
+                             __global float *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+/*__kernel void vector_sub_f64(__global const double *A,
+                             __global const double *B,
+                             __global double *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}*/
+
+__kernel void vector_sub_i8(__global const char *A,
+                             __global const char *B,
+                             __global char *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_i16(__global const short *A,
+                             __global const short *B,
+                             __global short *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_i32(__global const int *A,
+                             __global const int *B,
+                             __global int *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_i64(__global const long *A,
+                             __global const long *B,
+                             __global long *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u8(__global const uchar *A,
+                             __global const uchar *B,
+                             __global uchar *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u16(__global const ushort *A,
+                             __global const ushort *B,
+                             __global ushort *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u32(__global const uint *A,
+                             __global const uint *B,
+                             __global uint *C) {
+	uint i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u64(__global const ulong *A,
+                             __global const ulong *B,
+                             __global ulong *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+__kernel void vector_sub_f32(__global const float *A,
+                             __global const float *B,
+                             __global float *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+/*__kernel void vector_sub_f64(__global const double *A,
+                             __global const double *B,
+                             __global double *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}*/
+
+__kernel void vector_sub_i8(__global const char *A,
+                             __global const char *B,
+                             __global char *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_i16(__global const short *A,
+                             __global const short *B,
+                             __global short *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_i32(__global const int *A,
+                             __global const int *B,
+                             __global int *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_i64(__global const long *A,
+                             __global const long *B,
+                             __global long *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u8(__global const uchar *A,
+                             __global const uchar *B,
+                             __global uchar *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u16(__global const ushort *A,
+                             __global const ushort *B,
+                             __global ushort *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u32(__global const uint *A,
+                             __global const uint *B,
+                             __global uint *C) {
+	uint i = get_global_id(0);
+	C[i] = A[i] - B[i];
+}
+
+__kernel void vector_sub_u64(__global const ulong *A,
+                             __global const ulong *B,
+                             __global ulong *C) {
+	int i = get_global_id(0);
+	C[i] = A[i] - B[i];
 }

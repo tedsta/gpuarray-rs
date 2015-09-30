@@ -53,7 +53,18 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn add(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) -> Event {
-        let kernel = ctx.program.create_kernel("vector_add");
+        let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &other.buffer);
+        kernel.set_arg(2, &output.buffer);
+
+        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        Event(event)
+    }
+
+    pub fn sub(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_sub_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
@@ -82,7 +93,7 @@ fn cl_matrix_add() {
 
     let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
-    let c_cl: ClMatrix<usize> = ClMatrix::new(ctx, 1, 10000, ClMatrixMode::Out);
+    let c_cl: ClMatrix<i32> = ClMatrix::new(ctx, 1, 10000, ClMatrixMode::Out);
 
     let event = a_cl.add(ctx, &b_cl, &c_cl);
     

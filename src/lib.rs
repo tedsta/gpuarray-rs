@@ -1,3 +1,5 @@
+#![feature(convert)]
+
 extern crate opencl;
 
 pub use context::Context;
