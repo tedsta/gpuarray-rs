@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::Index;
 
 use num::Num;
@@ -52,5 +53,20 @@ impl<T: Num> Index<(usize, usize)> for Matrix<T> {
 
     fn index<'a>(&'a self, index: (usize, usize)) -> &'a T {
         self.get(index.0, index.1)
+    }
+}
+
+impl<T: Num> fmt::Debug for Matrix<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        try!(write!(f, "[\n"));
+        for row in 0..self.rows {
+            try!(write!(f, "[{}", self.get(row, 0)));
+            for col in 1..self.columns {
+                try!(write!(f, "\t{}", self.get(row, col)));
+            }
+            try!(write!(f, "]\n"));
+        }
+        try!(write!(f, "]\n"));
+        Ok(())
     }
 }

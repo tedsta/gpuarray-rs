@@ -82,7 +82,9 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(2, &self.rows);
         kernel.set_arg(3, &self.columns);
 
-        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        let event = ctx.queue.enqueue_async_kernel(&kernel,
+                                                   (self.rows, self.columns),
+                                                   None, ());
         Event(event)
     }
 
@@ -92,12 +94,12 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
-        kernel.set_arg(3, &self.rows);
-        kernel.set_arg(4, &self.columns);
-        kernel.set_arg(5, &other.rows);
-        kernel.set_arg(6, &other.columns);
+        kernel.set_arg(3, &self.columns);
+        kernel.set_arg(4, &other.columns);
 
-        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        let event = ctx.queue.enqueue_async_kernel(&kernel,
+                                                   (self.rows, other.columns),
+                                                   None, ());
         Event(event)
     }
 }
