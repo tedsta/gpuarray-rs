@@ -52,6 +52,14 @@ impl<T: Num> ClMatrix<T> {
         cl_matrix
     }
 
+    pub fn rows(&self) -> usize {
+        self.rows
+    }
+
+    pub fn columns(&self) -> usize {
+        self.columns
+    }
+
     pub fn add(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) -> Event {
         let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
 
