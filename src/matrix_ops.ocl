@@ -253,12 +253,19 @@ __kernel void vector_multiply_f32(__global const float *a,
 
 /*__kernel void vector_multiply_f64(__global const double *a,
                                    __global double *b,
-                                   const ulong rows,
-                                   const ulong cols) {
+                                   __global double *c,
+                                   const ulong wa,
+                                   const ulong wb) {
 	ulong i = get_global_id(0);
-    ulong row = i / cols;
-    ulong col = i % cols;
-	b[col*rows + row] = a[i]; // Flip the dimensions
+	ulong j = get_global_id(1);
+
+    double value = 0.0;
+    for (ulong k = 0; k < wa; k++) {
+        double e_a = a[i*wa + k]; // Element a
+        double e_b = b[k*wb + j]; // Element a
+        value += e_a*e_b;
+    }
+	c[i*wb + j] = value;
 }*/
 
 __kernel void vector_multiply_i8(__global const char *a,

@@ -3,6 +3,8 @@
 extern crate opencl;
 
 pub use context::Context;
+pub use matrix::Matrix;
+pub use cl_matrix::ClMatrix;
 
 pub mod context;
 pub mod cl_matrix;
