@@ -352,9 +352,10 @@ __kernel void vector_multiply_u64(__global const ulong *a,
 // Max
 
 __kernel void vector_max_f32(__global const float *a,
-                             __global const float *b) {
+                             __global const float *b
+                             const float threshold) {
 	uintptr_t i = get_global_id(0);
-	b[i] = max(0, a[i]);
+	b[i] = max(threshold, a[i]);
 }
 
 
@@ -362,7 +363,8 @@ __kernel void vector_max_f32(__global const float *a,
 // Min
 
 __kernel void vector_min_f32(__global const float *a,
-                             __global const float *b) {
+                             __global const float *b,
+                             const float threshold) {
 	uintptr_t i = get_global_id(0);
-	b[i] = min(0, a[i]);
+	b[i] = min(threshold, a[i]);
 }
