@@ -110,6 +110,26 @@ impl<T: Num> ClMatrix<T> {
                                                    None, ());
         Event(event)
     }
+
+    pub fn max(&self, ctx: &Context, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_max_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+
+        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        Event(event)
+    }
+
+    pub fn min(&self, ctx: &Context, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_min_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+
+        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        Event(event)
+    }
 }
 
 pub struct Event(opencl::hl::Event);

@@ -1,7 +1,5 @@
 use std::fmt;
 
-use opencl::hl::KernelArg;
-
 pub trait Num: Copy+fmt::Display {
     fn name() -> &'static str;
 }

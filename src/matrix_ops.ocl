@@ -347,3 +347,22 @@ __kernel void vector_multiply_u64(__global const ulong *a,
     ulong col = i % cols;
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Max
+
+__kernel void vector_max_f32(__global const float *a,
+                             __global const float *b) {
+	uintptr_t i = get_global_id(0);
+	b[i] = max(0, a[i]);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Min
+
+__kernel void vector_min_f32(__global const float *a,
+                             __global const float *b) {
+	uintptr_t i = get_global_id(0);
+	b[i] = min(0, a[i]);
+}
