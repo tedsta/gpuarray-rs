@@ -132,6 +132,29 @@ impl<T: Num> ClMatrix<T> {
         let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
         Event(event)
     }
+
+
+    pub fn dmax(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_dmax_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+        kernel.set_arg(2, &threshold);
+
+        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        Event(event)
+    }
+
+    pub fn dmin(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_dmin_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+        kernel.set_arg(2, &threshold);
+
+        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        Event(event)
+    }
 }
 
 pub struct Event(opencl::hl::Event);
