@@ -351,9 +351,9 @@ __kernel void vector_multiply_u64(__global const ulong *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Max
 
-__kernel void vector_max_f32(__global const float *a,
-                             __global const float *b,
-                             const float threshold) {
+__kernel void vector_max_f32(__global float *a,
+                             __global float *b,
+                             float const threshold) {
 	uintptr_t i = get_global_id(0);
 	b[i] = max(threshold, a[i]);
 }
@@ -361,8 +361,8 @@ __kernel void vector_max_f32(__global const float *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Min
 
-__kernel void vector_min_f32(__global const float *a,
-                             __global const float *b,
+__kernel void vector_min_f32(__global float *a,
+                             __global float *b,
                              const float threshold) {
 	uintptr_t i = get_global_id(0);
 	b[i] = min(threshold, a[i]);
@@ -371,8 +371,8 @@ __kernel void vector_min_f32(__global const float *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // derivative of max with respect to a
 
-__kernel void vector_dmax_f32(__global const float *a,
-                              __global const float *b
+__kernel void vector_dmax_f32(__global float *a,
+                              __global float *b,
                               const float threshold) {
 	uintptr_t i = get_global_id(0);
     if (a[i] > threshold) {
@@ -385,8 +385,8 @@ __kernel void vector_dmax_f32(__global const float *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // derivative of min with respect to a
 
-__kernel void vector_dmin_f32(__global const float *a,
-                              __global const float *b
+__kernel void vector_dmin_f32(__global float *a,
+                              __global float *b,
                               const float threshold) {
 	uintptr_t i = get_global_id(0);
     if (a[i] < threshold) {
