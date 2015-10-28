@@ -82,6 +82,17 @@ impl<T: Num> ClMatrix<T> {
         Event(event)
     }
 
+    pub fn multiply(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_multiply_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &other.buffer);
+        kernel.set_arg(2, &output.buffer);
+
+        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        Event(event)
+    }
+
     pub fn transpose(&self, ctx: &Context, output: &ClMatrix<T>) -> Event {
         let kernel = ctx.program.create_kernel(format!("vector_transpose_{}", T::name()).as_str());
 
@@ -96,8 +107,8 @@ impl<T: Num> ClMatrix<T> {
         Event(event)
     }
 
-    pub fn multiply(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) -> Event {
-        let kernel = ctx.program.create_kernel(format!("vector_multiply_{}", T::name()).as_str());
+    pub fn dot(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_dot_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
