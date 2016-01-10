@@ -51,6 +51,10 @@ impl<T: Num> ClMatrix<T> {
         ctx.queue.write(&cl_matrix.buffer, &&matrix.buffer()[..], ());
         cl_matrix
     }
+    
+    pub fn set(&self, ctx: &Context, matrix: &Matrix<T>) {
+        ctx.queue.write(&self.buffer, &&matrix.buffer()[..], ());
+    }
 
     pub fn rows(&self) -> usize {
         self.rows
