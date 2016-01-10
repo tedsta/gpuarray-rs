@@ -60,6 +60,16 @@ impl<T: Num> ClMatrix<T> {
         self.columns
     }
 
+    pub fn copy_to(&self, ctx: &Context, output: &ClMatrix<T>) -> Event {
+        let kernel = ctx.program.create_kernel(format!("vector_copy_to_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+
+        let event = ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, ());
+        Event(event)
+    }
+
     pub fn add(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) -> Event {
         let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
 

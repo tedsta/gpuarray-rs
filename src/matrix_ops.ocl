@@ -1,3 +1,11 @@
+__kernel void vector_copy_to_f32(__global const float *f,
+                                 __global float *t) {
+	uintptr_t i = get_global_id(0);
+	t[i] = f[i];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 __kernel void vector_add_f32(__global const float *a,
                              __global const float *b,
                              __global float *c) {
