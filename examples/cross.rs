@@ -14,7 +14,7 @@ fn main() {
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
     let c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 5, 15, ClMatrixMode::Mut);
 
-    let event = a_cl.multiply(ctx, &b_cl, &c_cl);
+    let event = a_cl.cross(ctx, &b_cl, &c_cl);
     
     let c = event.get(ctx, &c_cl);
 

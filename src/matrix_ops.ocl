@@ -150,70 +150,70 @@ __kernel void vector_sub_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__kernel void vector_multiply_f32(__global const float *a,
+__kernel void vector_dot_f32(__global const float *a,
                                   __global const float *b,
                                   __global float *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-/*__kernel void vector_multiply_f64(__global const double *a,
+/*__kernel void vector_dot_f64(__global const double *a,
                                     __global const double *b,
                                     __global double *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }*/
 
-__kernel void vector_multiply_i8(__global const char *a,
+__kernel void vector_dot_i8(__global const char *a,
                                  __global const char *b,
                                  __global char *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_i16(__global const short *a,
+__kernel void vector_dot_i16(__global const short *a,
                                   __global const short *b,
                                   __global short *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_i32(__global const int *a,
+__kernel void vector_dot_i32(__global const int *a,
                                   __global const int *b,
                                   __global int *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_i64(__global const long *a,
+__kernel void vector_dot_i64(__global const long *a,
                                   __global const long *b,
                                   __global long *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u8(__global const uchar *a,
+__kernel void vector_dot_u8(__global const uchar *a,
                                  __global const uchar *b,
                                  __global uchar *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u16(__global const ushort *a,
+__kernel void vector_dot_u16(__global const ushort *a,
                                   __global const ushort *b,
                                   __global ushort *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u32(__global const uint *a,
+__kernel void vector_dot_u32(__global const uint *a,
                                   __global const uint *b,
                                   __global uint *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u64(__global const ulong *a,
+__kernel void vector_dot_u64(__global const ulong *a,
                                   __global const ulong *b,
                                   __global ulong *c) {
 	uintptr_t i = get_global_id(0);
@@ -314,11 +314,11 @@ __kernel void vector_transpose_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__kernel void vector_dot_f32(__global const float *a,
-                                  __global const float *b,
-                                  __global float *c,
-                                  const ulong wa,
-                                  const ulong wb) {
+__kernel void vector_cross_f32(__global const float *a,
+                               __global const float *b,
+                               __global float *c,
+                               const ulong wa,
+                               const ulong wb) {
 	ulong i = get_global_id(0);
 	ulong j = get_global_id(1);
 
@@ -331,7 +331,7 @@ __kernel void vector_dot_f32(__global const float *a,
 	c[i*wb + j] = value;
 }
 
-/*__kernel void vector_dot_f64(__global const double *a,
+/*__kernel void vector_cross_f64(__global const double *a,
                                    __global double *b,
                                    __global double *c,
                                    const ulong wa,
@@ -348,17 +348,17 @@ __kernel void vector_dot_f32(__global const float *a,
 	c[i*wb + j] = value;
 }*/
 
-__kernel void vector_dot_i8(__global const char *a,
-                                  __global char *b,
-                                   const ulong rows,
-                                   const ulong cols) {
+__kernel void vector_cross_i8(__global const char *a,
+                              __global char *b,
+                              const ulong rows,
+                              const ulong cols) {
 	ulong i = get_global_id(0);
     ulong row = i / cols;
     ulong col = i % cols;
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_i16(__global const short *a,
+__kernel void vector_cross_i16(__global const short *a,
                                    __global short *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -368,7 +368,7 @@ __kernel void vector_dot_i16(__global const short *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_i32(__global const int *a,
+__kernel void vector_cross_i32(__global const int *a,
                                    __global int *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -378,7 +378,7 @@ __kernel void vector_dot_i32(__global const int *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_i64(__global const long *a,
+__kernel void vector_cross_i64(__global const long *a,
                                    __global long *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -388,7 +388,7 @@ __kernel void vector_dot_i64(__global const long *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u8(__global const uchar *a,
+__kernel void vector_cross_u8(__global const uchar *a,
                                   __global uchar *b,
                                   const ulong rows,
                                   const ulong cols) {
@@ -398,7 +398,7 @@ __kernel void vector_dot_u8(__global const uchar *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u16(__global const ushort *a,
+__kernel void vector_cross_u16(__global const ushort *a,
                                    __global ushort *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -408,7 +408,7 @@ __kernel void vector_dot_u16(__global const ushort *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u32(__global const uint *a,
+__kernel void vector_cross_u32(__global const uint *a,
                                    __global uint *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -418,7 +418,7 @@ __kernel void vector_dot_u32(__global const uint *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u64(__global const ulong *a,
+__kernel void vector_cross_u64(__global const ulong *a,
                                    __global ulong *b,
                                    const ulong rows,
                                    const ulong cols) {
