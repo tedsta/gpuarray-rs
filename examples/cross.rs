@@ -16,7 +16,7 @@ fn main() {
 
     let event = a_cl.cross(ctx, &b_cl, &c_cl, &[]);
     
-    let c = event.get(ctx, &c_cl);
+    let c = c_cl.event_get(ctx, &event);
 
     println!("A = \n{:?}", a);
     println!("B = \n{:?}", b);

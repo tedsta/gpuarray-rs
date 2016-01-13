@@ -18,7 +18,7 @@ fn main() {
     let c_event = a_cl.add(ctx, &b_cl, &c_cl, &[]);
     let d_event = c_cl.transpose(ctx, &d_cl, &[c_event]);
     
-    let d = d_event.get(ctx, &d_cl);
+    let d = d_cl.event_get(ctx, &d_event);
 
     for i in 0..100 {
         for j in 0..1000 {
