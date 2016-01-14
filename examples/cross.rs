@@ -12,11 +12,11 @@ fn main() {
 
     let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
-    let c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 5, 15, ClMatrixMode::Mut);
+    let mut c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 5, 15, ClMatrixMode::Mut);
 
-    let event = a_cl.cross(ctx, &b_cl, &c_cl, &[]);
+    a_cl.cross(ctx, &b_cl, &mut c_cl);
     
-    let c = c_cl.event_get(ctx, &event);
+    let c = c_cl.get(ctx);
 
     println!("A = \n{:?}", a);
     println!("B = \n{:?}", b);

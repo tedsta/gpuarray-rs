@@ -12,13 +12,13 @@ fn main() {
 
     let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
-    let c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 100, 1000, ClMatrixMode::Mut);
-    let d_cl: ClMatrix<f32> = ClMatrix::new(ctx, 1000, 100, ClMatrixMode::Out);
+    let mut c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 100, 1000, ClMatrixMode::Mut);
+    let mut d_cl: ClMatrix<f32> = ClMatrix::new(ctx, 1000, 100, ClMatrixMode::Out);
 
-    let c_event = a_cl.add(ctx, &b_cl, &c_cl, &[]);
-    let d_event = c_cl.transpose(ctx, &d_cl, &[c_event]);
+    a_cl.add(ctx, &b_cl, &mut c_cl);
+    c_cl.transpose(ctx, &mut d_cl);
     
-    let d = d_cl.event_get(ctx, &d_event);
+    let d = d_cl.get(ctx);
 
     for i in 0..100 {
         for j in 0..1000 {
