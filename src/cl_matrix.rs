@@ -107,8 +107,8 @@ impl<T: Num> ClMatrix<T> {
                                                            None, event_list));
     }
 
-    pub fn dot(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_dot_{}", T::name()).as_str());
+    pub fn multiply(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+        let kernel = ctx.program.create_kernel(format!("vector_multiply_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
@@ -131,8 +131,8 @@ impl<T: Num> ClMatrix<T> {
                                                            None, self.event.as_ref()));
     }
 
-    pub fn cross(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_cross_{}", T::name()).as_str());
+    pub fn dot(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+        let kernel = ctx.program.create_kernel(format!("vector_dot_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);

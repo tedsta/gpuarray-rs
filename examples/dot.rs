@@ -14,7 +14,7 @@ fn main() {
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
     let mut c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 5, 15, ClMatrixMode::Mut);
 
-    a_cl.cross(ctx, &b_cl, &mut c_cl);
+    a_cl.dot(ctx, &b_cl, &mut c_cl);
     
     let c = c_cl.get(ctx);
 
