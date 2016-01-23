@@ -190,6 +190,36 @@ impl<T: Num> ClMatrix<T> {
         output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
                                                            None, self.event.as_ref()));
     }
+
+    pub fn mse(&self, ctx: &Context, train: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+        let kernel = ctx.program.create_kernel(format!("vector_mse_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &train.buffer);
+        kernel.set_arg(2, &output.buffer);
+        kernel.set_arg(3, &self.rows);
+        kernel.set_arg(4, &self.columns);
+
+        let event_list: &[Option<&Event>] = &[self.event.as_ref(), train.event.as_ref()];
+        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel,
+                                                           self.columns,
+                                                           None, event_list));
+    }
+
+    pub fn dmse(&self, ctx: &Context, train: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+        let kernel = ctx.program.create_kernel(format!("vector_dmse_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &train.buffer);
+        kernel.set_arg(2, &output.buffer);
+        kernel.set_arg(3, &self.rows);
+        kernel.set_arg(4, &self.columns);
+
+        let event_list: &[Option<&Event>] = &[self.event.as_ref(), train.event.as_ref()];
+        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel,
+                                                           self.columns,
+                                                           None, event_list));
+    }
 }
 
 pub type Event = opencl::hl::Event;

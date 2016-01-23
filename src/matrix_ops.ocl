@@ -475,3 +475,50 @@ __kernel void vector_dmin_f32(__global float *a,
         b[i] = 0;
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mean Squared Error (MSE)
+
+__kernel void vector_mse_f32(__global float *h,
+                             __global float *y,
+                             __global float *out,
+                             ulong rows,
+                             const ulong batch_size) {
+	ulong i = get_global_id(0);
+
+    out[i] = 0.0; // Initialize to zero before we start summing things up
+    
+    // Sum up squared errors
+    for (ulong m = 0; m < batch_size; m++) {
+        float error = h[m*rows + i] - y[m*rows + i];
+        out[i] += error*error;
+    }
+
+    // Divide by batch size to calculate the mean
+    out[i] /= (float)batch_size;
+    out[i] /= 2.0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mean Squared Error derivative
+
+__kernel void vector_dmse_f32(__global float *h,
+                              __global float *y,
+                              __global float *out,
+                              ulong rows,
+                              const ulong batch_size) {
+	ulong i = get_global_id(0);
+
+    out[i] = 0.0; // Initialize to zero before we start summing things up
+    
+    // MSE derivative is just the average of all of the differences between the prediction and the answer.
+
+    for (ulong m = 0; m < batch_size; m++) {
+        uintptr_t index = m*rows + i;
+        float error = h[index] - y[index];
+        out[i] += error;
+    }
+
+    // Divide by batch size to calculate the mean
+    out[i] /= (float)batch_size;
+}
