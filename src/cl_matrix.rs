@@ -58,7 +58,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn get(&self, ctx: &Context) -> Matrix<T> {
-        let vec = ctx.queue.get(&self.buffer, &*self.get_event().unwrap());
+        let vec = ctx.queue.get(&self.buffer, self.get_event().as_ref().map(|x| &**x));
         Matrix::from_vec(self.rows, self.columns, vec)
     }
     
@@ -80,7 +80,6 @@ impl<T: Num> ClMatrix<T> {
 
     fn get_event(&self) -> Option<Ref<Event>> {
         if self.event.borrow().is_some() {
-            //Some(Ref::map(&self.event.borrow(), |x| x.unwrap().as_ref().unwrap()))
             Ref::filter_map(self.event.borrow(), |o| o.as_ref())
         } else {
             None
@@ -94,7 +93,7 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(1, &output.buffer);
 
         output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, &*self.get_event().unwrap()));
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
     }
 
     pub fn add(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
@@ -145,7 +144,7 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.columns);
 
         output.set_event(ctx.queue.enqueue_async_kernel(&kernel, (self.rows, self.columns),
-                                                        None, &*self.get_event().unwrap()));
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
     }
 
     pub fn dot(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
@@ -174,7 +173,7 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(2, &threshold);
 
         output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, &*self.get_event().unwrap()));
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
     }
 
     pub fn min(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
@@ -185,7 +184,7 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(2, &threshold);
 
         output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, &*self.get_event().unwrap()));
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
     }
 
 
@@ -197,7 +196,7 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(2, &threshold);
 
         output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, &*self.get_event().unwrap()));
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
     }
 
     pub fn dmin(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
@@ -208,7 +207,7 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(2, &threshold);
 
         output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, &*self.get_event().unwrap()));
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
     }
 
     pub fn mse(&self, ctx: &Context, train: &ClMatrix<T>, output: &ClMatrix<T>) {
