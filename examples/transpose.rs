@@ -15,7 +15,7 @@ fn main() {
     let mut c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 100, 1000, ClMatrixMode::Mut);
     let mut d_cl: ClMatrix<f32> = ClMatrix::new(ctx, 1000, 100, ClMatrixMode::Out);
 
-    a_cl.add(ctx, &b_cl, &mut c_cl);
+    a_cl.add(ctx, -1, &b_cl, &mut c_cl);
     c_cl.transpose(ctx, &mut d_cl);
     
     let d = d_cl.get(ctx);

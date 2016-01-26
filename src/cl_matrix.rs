@@ -96,16 +96,19 @@ impl<T: Num> ClMatrix<T> {
                                                         None, self.get_event().as_ref().map(|x| &**x)));
     }
 
-    pub fn add(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
+    pub fn add(&self, ctx: &Context, axis: i32, other: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
+        kernel.set_arg(3, &self.columns());
+        kernel.set_arg(4, &axis);
+
 
         let new_event = {
             let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
-            ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, event_list)
+            ctx.queue.enqueue_async_kernel(&kernel, (self.rows(), self.columns()), None, event_list)
         };
         output.set_event(new_event);
     }
@@ -263,7 +266,7 @@ fn cl_matrix_add() {
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
     let c_cl: ClMatrix<i32> = ClMatrix::new(ctx, 1, 10000, ClMatrixMode::Out);
 
-    a_cl.add(ctx, &b_cl, &c_cl);
+    a_cl.add(ctx, -1, &b_cl, &c_cl);
     
     let c = c_cl.get(ctx);
 
@@ -282,5 +285,26 @@ fn cl_matrix_add_reuse() {
     let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
 
-    a_cl.add(ctx, &b_cl, &b_cl); // b = a+b
+    a_cl.add(ctx, -1, &b_cl, &b_cl); // b = a+b
+}
+
+#[test]
+fn cl_matrix_add_axis() {
+    let ref ctx = Context::new();
+
+    let a = Matrix::from_vec(5, 3, (0..15).collect());
+    let b = Matrix::from_vec(1, 3, (0..3).collect());
+
+    let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
+    let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
+
+    a_cl.add(ctx, 0, &b_cl, &a_cl); // a = a+b
+
+    let a = a_cl.get(ctx);
+
+    assert!(a.buffer() == &[0, 2, 4,
+                          3, 5, 7,
+                          6, 8, 10,
+                          9, 11, 13,
+                          12, 14, 16]);
 }

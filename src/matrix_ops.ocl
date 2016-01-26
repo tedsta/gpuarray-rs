@@ -8,9 +8,18 @@ __kernel void vector_copy_to_f32(__global const float *f,
 
 __kernel void vector_add_f32(__global const float *a,
                              __global const float *b,
-                             __global float *c) {
-	uintptr_t i = get_global_id(0);
-	c[i] = a[i] + b[i];
+                             __global float *c,
+                             const ulong cols,
+                             const int axis) {
+	ulong i = get_global_id(0);
+	ulong j = get_global_id(1);
+    if (axis == -1) {
+        c[i*cols + j] = a[i*cols + j] + b[i*cols + j];
+    } else if (axis == 0) {
+        c[i*cols + j] = a[i*cols + j] + b[j];
+    } else if (axis == 1) {
+        c[i*cols + j] = a[i*cols + j] + b[i];
+    }
 }
 
 /*__kernel void vector_add_f64(__global const double *a,
@@ -36,9 +45,18 @@ __kernel void vector_add_i16(__global const short *a,
 
 __kernel void vector_add_i32(__global const int *a,
                              __global const int *b,
-                             __global int *c) {
-	uintptr_t i = get_global_id(0);
-	c[i] = a[i] + b[i];
+                             __global int *c,
+                             const ulong cols,
+                             const int axis) {
+	ulong i = get_global_id(0);
+	ulong j = get_global_id(1);
+    if (axis == -1) {
+        c[i*cols + j] = a[i*cols + j] + b[i*cols + j];
+    } else if (axis == 0) {
+        c[i*cols + j] = a[i*cols + j] + b[j];
+    } else if (axis == 1) {
+        c[i*cols + j] = a[i*cols + j] + b[i];
+    }
 }
 
 __kernel void vector_add_i64(__global const long *a,
@@ -71,9 +89,18 @@ __kernel void vector_add_u32(__global const uint *a,
 
 __kernel void vector_add_u64(__global const ulong *a,
                              __global const ulong *b,
-                             __global ulong *c) {
-	uintptr_t i = get_global_id(0);
-	c[i] = a[i] + b[i];
+                             __global ulong *c,
+                             const ulong cols,
+                             const int axis) {
+	ulong i = get_global_id(0);
+	ulong j = get_global_id(1);
+    if (axis == -1) {
+        c[i*cols + j] = a[i*cols + j] + b[i*cols + j];
+    } else if (axis == 0) {
+        c[i*cols + j] = a[i*cols + j] + b[j];
+    } else if (axis == 1) {
+        c[i*cols + j] = a[i*cols + j] + b[i];
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
