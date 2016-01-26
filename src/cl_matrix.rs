@@ -154,10 +154,13 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.columns);
         kernel.set_arg(4, &other.columns);
 
-        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
-        output.set_event(ctx.queue.enqueue_async_kernel(&kernel,
-                                                        (self.rows, other.columns),
-                                                        None, event_list));
+        let new_event = {
+            let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+            ctx.queue.enqueue_async_kernel(&kernel,
+                                           (self.rows, other.columns),
+                                           None, event_list)
+        };
+        output.set_event(new_event);
     }
 
     pub fn max(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
@@ -214,10 +217,13 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.rows);
         kernel.set_arg(4, &self.columns);
 
-        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), train.get_event()];
-        output.set_event(ctx.queue.enqueue_async_kernel(&kernel,
-                                                        self.columns,
-                                                        None, event_list));
+        let new_event = {
+            let event_list: &[Option<Ref<Event>>] = &[self.get_event(), train.get_event()];
+            ctx.queue.enqueue_async_kernel(&kernel,
+                                           self.columns,
+                                           None, event_list)
+        };
+        output.set_event(new_event);
     }
 
     pub fn dmse(&self, ctx: &Context, train: &ClMatrix<T>, output: &ClMatrix<T>) {
@@ -229,10 +235,13 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.rows);
         kernel.set_arg(4, &self.columns);
 
-        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), train.get_event()];
-        output.set_event(ctx.queue.enqueue_async_kernel(&kernel,
-                                                        self.columns,
-                                                        None, event_list));
+        let new_event = {
+            let event_list: &[Option<Ref<Event>>] = &[self.get_event(), train.get_event()];
+            ctx.queue.enqueue_async_kernel(&kernel,
+                                           self.columns,
+                                           None, event_list)
+        };
+        output.set_event(new_event);
     }
 }
 
