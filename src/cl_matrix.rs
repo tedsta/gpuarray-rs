@@ -105,8 +105,7 @@ impl<T: Num> ClMatrix<T> {
 
         let new_event = {
             let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
-            ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                           None, event_list)
+            ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, event_list)
         };
         output.set_event(new_event);
     }
@@ -118,9 +117,11 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
 
-        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
-        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, event_list));
+        let new_event = {
+            let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+            ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, event_list)
+        };
+        output.set_event(new_event);
     }
 
     pub fn multiply(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
@@ -130,9 +131,11 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
 
-        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
-        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, event_list));
+        let new_event = {
+            let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+            ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, event_list)
+        };
+        output.set_event(new_event);
     }
 
     pub fn transpose(&self, ctx: &Context, output: &ClMatrix<T>) {
