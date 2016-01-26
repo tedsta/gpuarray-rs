@@ -1,4 +1,5 @@
 #![feature(convert)]
+#![feature(cell_extras)]
 
 extern crate opencl;
 

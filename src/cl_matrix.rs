@@ -1,3 +1,5 @@
+use std::cell::{RefCell, Ref};
+
 use opencl;
 use opencl::mem::{Buffer, CLBuffer};
 
@@ -15,7 +17,7 @@ pub struct ClMatrix<T: Num> {
     rows: usize,
     columns: usize,
     buffer: CLBuffer<T>,
-    event: Option<Event>,
+    event: RefCell<Option<Event>>,
 }
 
 impl<T: Num> ClMatrix<T> {
@@ -30,7 +32,7 @@ impl<T: Num> ClMatrix<T> {
             rows: rows,
             columns: columns,
             buffer: ctx.ctx.create_buffer(rows*columns, cl_mem_mode),
-            event: None,
+            event: RefCell::new(None),
         }
     }
 
@@ -48,7 +50,7 @@ impl<T: Num> ClMatrix<T> {
                 rows: matrix.rows(),
                 columns: matrix.columns(),
                 buffer: ctx.ctx.create_buffer(matrix.rows()*matrix.columns(), cl_mem_mode),
-                event: None,
+                event: RefCell::new(None),
             };
         
         ctx.queue.write(&cl_matrix.buffer, &&matrix.buffer()[..], ());
@@ -56,7 +58,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn get(&self, ctx: &Context) -> Matrix<T> {
-        let vec = ctx.queue.get(&self.buffer, self.event.as_ref().unwrap());
+        let vec = ctx.queue.get(&self.buffer, &*self.get_event().unwrap());
         Matrix::from_vec(self.rows, self.columns, vec)
     }
     
@@ -71,55 +73,67 @@ impl<T: Num> ClMatrix<T> {
     pub fn columns(&self) -> usize {
         self.columns
     }
+    
+    fn set_event(&self, e: Event) {
+        *self.event.borrow_mut() = Some(e);
+    }
 
-    pub fn copy_to(&self, ctx: &Context, output: &mut ClMatrix<T>) {
+    fn get_event(&self) -> Option<Ref<Event>> {
+        if self.event.borrow().is_some() {
+            //Some(Ref::map(&self.event.borrow(), |x| x.unwrap().as_ref().unwrap()))
+            Ref::filter_map(self.event.borrow(), |o| o.as_ref())
+        } else {
+            None
+        }
+    }
+
+    pub fn copy_to(&self, ctx: &Context, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_copy_to_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
 
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                           None, self.event.as_ref()));
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, &*self.get_event().unwrap()));
     }
 
-    pub fn add(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+    pub fn add(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
 
-        let event_list: &[Option<&Event>] = &[self.event.as_ref(), other.event.as_ref()];
-        output.event = Some(ctx.queue
-                               .enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                     None, event_list));
+        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, event_list));
     }
 
-    pub fn sub(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+    pub fn sub(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_sub_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
 
-        let event_list: &[Option<&Event>] = &[self.event.as_ref(), other.event.as_ref()];
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                           None, event_list));
+        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, event_list));
     }
 
-    pub fn multiply(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+    pub fn multiply(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_multiply_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
 
-        let event_list: &[Option<&Event>] = &[self.event.as_ref(), other.event.as_ref()];
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                           None, event_list));
+        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, event_list));
     }
 
-    pub fn transpose(&self, ctx: &Context, output: &mut ClMatrix<T>) {
+    pub fn transpose(&self, ctx: &Context, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_transpose_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
@@ -127,11 +141,11 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(2, &self.rows);
         kernel.set_arg(3, &self.columns);
 
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, (self.rows, self.columns),
-                                                           None, self.event.as_ref()));
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, (self.rows, self.columns),
+                                                        None, &*self.get_event().unwrap()));
     }
 
-    pub fn dot(&self, ctx: &Context, other: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+    pub fn dot(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_dot_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
@@ -140,58 +154,58 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.columns);
         kernel.set_arg(4, &other.columns);
 
-        let event_list: &[Option<&Event>] = &[self.event.as_ref(), other.event.as_ref()];
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel,
-                                                           (self.rows, other.columns),
-                                                           None, event_list));
+        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel,
+                                                        (self.rows, other.columns),
+                                                        None, event_list));
     }
 
-    pub fn max(&self, ctx: &Context, threshold: T, output: &mut ClMatrix<T>) {
+    pub fn max(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_max_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
         kernel.set_arg(2, &threshold);
 
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                           None, self.event.as_ref()));
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, &*self.get_event().unwrap()));
     }
 
-    pub fn min(&self, ctx: &Context, threshold: T, output: &mut ClMatrix<T>) {
+    pub fn min(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_min_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
         kernel.set_arg(2, &threshold);
 
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                           None, self.event.as_ref()));
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, &*self.get_event().unwrap()));
     }
 
 
-    pub fn dmax(&self, ctx: &Context, threshold: T, output: &mut ClMatrix<T>) {
+    pub fn dmax(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_dmax_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
         kernel.set_arg(2, &threshold);
 
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                           None, self.event.as_ref()));
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, &*self.get_event().unwrap()));
     }
 
-    pub fn dmin(&self, ctx: &Context, threshold: T, output: &mut ClMatrix<T>) {
+    pub fn dmin(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_dmin_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
         kernel.set_arg(2, &threshold);
 
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                           None, self.event.as_ref()));
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, &*self.get_event().unwrap()));
     }
 
-    pub fn mse(&self, ctx: &Context, train: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+    pub fn mse(&self, ctx: &Context, train: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_mse_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
@@ -200,13 +214,13 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.rows);
         kernel.set_arg(4, &self.columns);
 
-        let event_list: &[Option<&Event>] = &[self.event.as_ref(), train.event.as_ref()];
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel,
-                                                           self.columns,
-                                                           None, event_list));
+        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), train.get_event()];
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel,
+                                                        self.columns,
+                                                        None, event_list));
     }
 
-    pub fn dmse(&self, ctx: &Context, train: &ClMatrix<T>, output: &mut ClMatrix<T>) {
+    pub fn dmse(&self, ctx: &Context, train: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_dmse_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
@@ -215,10 +229,10 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.rows);
         kernel.set_arg(4, &self.columns);
 
-        let event_list: &[Option<&Event>] = &[self.event.as_ref(), train.event.as_ref()];
-        output.event = Some(ctx.queue.enqueue_async_kernel(&kernel,
-                                                           self.columns,
-                                                           None, event_list));
+        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), train.get_event()];
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel,
+                                                        self.columns,
+                                                        None, event_list));
     }
 }
 
