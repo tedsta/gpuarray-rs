@@ -104,9 +104,12 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
 
-        let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
-        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
-                                                        None, event_list));
+        let new_event = {
+            let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+            ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                           None, event_list)
+        };
+        output.set_event(new_event);
     }
 
     pub fn sub(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
@@ -256,13 +259,26 @@ fn cl_matrix_add() {
 
     let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
     let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
-    let mut c_cl: ClMatrix<i32> = ClMatrix::new(ctx, 1, 10000, ClMatrixMode::Out);
+    let c_cl: ClMatrix<i32> = ClMatrix::new(ctx, 1, 10000, ClMatrixMode::Out);
 
-    a_cl.add(ctx, &b_cl, &mut c_cl);
+    a_cl.add(ctx, &b_cl, &c_cl);
     
     let c = c_cl.get(ctx);
 
     for i in 0..10000 {
         assert!(c[(0, i)] == a[(0, i)] + b[(0, i)]);
     }
+}
+
+#[test]
+fn cl_matrix_add_reuse() {
+    let ref ctx = Context::new();
+
+    let a = Matrix::from_vec(1, 10000, (0..10000).collect());
+    let b = Matrix::from_vec(1, 10000, (0..10000).map(|x| x*2).collect());
+
+    let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
+    let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
+
+    a_cl.add(ctx, &b_cl, &b_cl); // b = a+b
 }
