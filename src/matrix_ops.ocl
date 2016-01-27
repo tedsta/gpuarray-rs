@@ -9,9 +9,29 @@ __kernel void vector_copy_to_f32(__global const float *f,
 
 __kernel void vector_sum_f32(__global float *a,
                              __global float *b,
-                             const ulong rows,
-                             const ulong cols,
-                             const uint axis) {
+                             ulong rows,
+                             ulong cols,
+                             ulong axis) {
+	ulong i = get_global_id(0);
+
+    b[i] = 0.0; // Initialize to zero before we start summing things up
+    
+    if (axis == 0) {
+        for (ulong m = 0; m < rows; m++) {
+            b[i] += a[m*cols + i];
+        }
+    } else if (axis == 1) {
+        for (ulong m = 0; m < cols; m++) {
+            b[i] += a[i*cols + m];
+        }
+    }
+}
+
+__kernel void vector_sum_i32(__global int *a,
+                             __global int *b,
+                             ulong rows,
+                             ulong cols,
+                             ulong axis) {
 	ulong i = get_global_id(0);
 
     b[i] = 0.0; // Initialize to zero before we start summing things up
