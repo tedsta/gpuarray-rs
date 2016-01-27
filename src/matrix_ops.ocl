@@ -11,7 +11,7 @@ __kernel void vector_sum_f32(__global float *a,
                              __global float *b,
                              const ulong rows,
                              const ulong cols,
-                             const ulong axis) {
+                             const uint axis) {
 	ulong i = get_global_id(0);
 
     b[i] = 0.0; // Initialize to zero before we start summing things up
