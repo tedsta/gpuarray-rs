@@ -192,11 +192,11 @@ __kernel void vector_multiply_f32(__global const float *a,
 	ulong i = get_global_id(0);
 	ulong j = get_global_id(1);
     if (axis == -1) {
-        c[i*cols + j] = a[i*cols + j] + b[i*cols + j];
+        c[i*cols + j] = a[i*cols + j] * b[i*cols + j];
     } else if (axis == 0) {
-        c[i*cols + j] = a[i*cols + j] + b[j];
+        c[i*cols + j] = a[i*cols + j] * b[j];
     } else if (axis == 1) {
-        c[i*cols + j] = a[i*cols + j] + b[i];
+        c[i*cols + j] = a[i*cols + j] * b[i];
     }
 }
 
@@ -229,11 +229,11 @@ __kernel void vector_multiply_i32(__global const int *a,
 	ulong i = get_global_id(0);
 	ulong j = get_global_id(1);
     if (axis == -1) {
-        c[i*cols + j] = a[i*cols + j] + b[i*cols + j];
+        c[i*cols + j] = a[i*cols + j] * b[i*cols + j];
     } else if (axis == 0) {
-        c[i*cols + j] = a[i*cols + j] + b[j];
+        c[i*cols + j] = a[i*cols + j] * b[j];
     } else if (axis == 1) {
-        c[i*cols + j] = a[i*cols + j] + b[i];
+        c[i*cols + j] = a[i*cols + j] * b[i];
     }
 }
 
