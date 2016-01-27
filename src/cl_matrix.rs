@@ -305,8 +305,27 @@ fn cl_matrix_add_axis() {
     let a = a_cl.get(ctx);
 
     assert!(a.buffer() == &[0, 2, 4,
-                          3, 5, 7,
-                          6, 8, 10,
-                          9, 11, 13,
-                          12, 14, 16]);
+                            3, 5, 7,
+                            6, 8, 10,
+                            9, 11, 13,
+                            12, 14, 16]);
+}
+
+#[test]
+fn cl_matrix_multiply_axis1() {
+    let ref ctx = Context::new();
+
+    let a = Matrix::from_vec(3, 5, (0..15).collect());
+    let b = Matrix::from_vec(3, 1, (0..3).collect());
+
+    let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
+    let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
+
+    a_cl.multiply(ctx, 1, &b_cl, &a_cl); // a = a*b
+
+    let a = a_cl.get(ctx);
+
+    assert!(a.buffer() == &[0,  0,  0,  0,  0,
+                            5,  6,  7,  8,  9,
+                            20, 22, 24, 26, 28]);
 }
