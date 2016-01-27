@@ -96,6 +96,24 @@ impl<T: Num> ClMatrix<T> {
                                                         None, self.get_event().as_ref().map(|x| &**x)));
     }
 
+    pub fn sum(&self, ctx: &Context, axis: u32, other: &ClMatrix<T>) {
+        let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &other.buffer);
+        kernel.set_arg(2, &self.rows());
+        kernel.set_arg(3, &self.columns());
+        kernel.set_arg(4, &axis);
+
+        let axis_dim = [self.rows(), self.columns()][axis as usize];
+
+        let new_event = {
+            let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
+            ctx.queue.enqueue_async_kernel(&kernel, axis_dim, None, event_list)
+        };
+        other.set_event(new_event);
+    }
+
     pub fn add(&self, ctx: &Context, axis: i32, other: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
 
