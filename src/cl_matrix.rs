@@ -101,11 +101,8 @@ impl<T: Num> ClMatrix<T> {
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
-        println!("waa");
         kernel.set_arg(2, &self.rows());
-        println!("foo");
         kernel.set_arg(3, &self.columns());
-        println!("bar");
         kernel.set_arg(4, &axis);
 
         let axis_dim = [self.rows(), self.columns()][axis];
