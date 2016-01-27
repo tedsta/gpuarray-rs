@@ -248,7 +248,7 @@ impl<T: Num> ClMatrix<T> {
         let new_event = {
             let event_list: &[Option<Ref<Event>>] = &[self.get_event(), train.get_event()];
             ctx.queue.enqueue_async_kernel(&kernel,
-                                           self.columns,
+                                           (self.rows, self.columns),
                                            None, event_list)
         };
         output.set_event(new_event);
