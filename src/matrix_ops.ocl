@@ -16,11 +16,11 @@ __kernel void vector_sum_f32(__global float *a,
 
     b[i] = 0.0; // Initialize to zero before we start summing things up
     
-    if axis == 0 {
+    if (axis == 0) {
         for (ulong m = 0; m < rows; m++) {
             b[i] += a[m*cols + i];
         }
-    } else if axis == 1 {
+    } else if (axis == 1) {
         for (ulong m = 0; m < cols; m++) {
             b[i] += a[i*cols + m];
         }
