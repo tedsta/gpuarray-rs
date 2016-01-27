@@ -127,16 +127,18 @@ impl<T: Num> ClMatrix<T> {
         output.set_event(new_event);
     }
 
-    pub fn multiply(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
+    pub fn multiply(&self, ctx: &Context, axis: i32, other: &ClMatrix<T>, output: &ClMatrix<T>) {
         let kernel = ctx.program.create_kernel(format!("vector_multiply_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
         kernel.set_arg(2, &output.buffer);
+        kernel.set_arg(3, &self.columns());
+        kernel.set_arg(4, &axis);
 
         let new_event = {
             let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
-            ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(), None, event_list)
+            ctx.queue.enqueue_async_kernel(&kernel, (self.rows(), self.columns()), None, event_list)
         };
         output.set_event(new_event);
     }
