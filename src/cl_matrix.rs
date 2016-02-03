@@ -105,10 +105,10 @@ impl<T: Num> ClMatrix<T> {
         kernel.set_arg(3, &self.columns());
         kernel.set_arg(4, &axis);
 
-        let axis_dim = [self.rows(), self.columns()][axis];
+        let keep_dim = [self.columns(), self.rows()][axis];
 
         let new_event = {
-            ctx.queue.enqueue_async_kernel(&kernel, axis_dim, None, self.get_event().as_ref().map(|x| &**x))
+            ctx.queue.enqueue_async_kernel(&kernel, keep_dim, None, self.get_event().as_ref().map(|x| &**x))
         };
         other.set_event(new_event);
     }
@@ -275,7 +275,7 @@ impl<T: Num> ClMatrix<T> {
 pub type Event = opencl::hl::Event;
 
 #[test]
-fn cl_matrix_sum_axis() {
+fn cl_matrix_sum_axis0() {
     let ref ctx = Context::new();
 
     let a: Matrix<i32> = Matrix::from_vec(5, 3, (0..15).collect());
@@ -288,6 +288,22 @@ fn cl_matrix_sum_axis() {
     let b = b_cl.get(ctx);
 
     assert!(b.buffer() == &[30, 35, 40]);
+}
+
+#[test]
+fn cl_matrix_sum_axis1() {
+    let ref ctx = Context::new();
+
+    let a: Matrix<i32> = Matrix::from_vec(5, 3, (0..15).collect());
+    let b = Matrix::from_vec(5, 1, (0..5).collect());
+
+    let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
+    let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::Out);
+
+    a_cl.sum(ctx, 1, &b_cl);
+    let b = b_cl.get(ctx);
+
+    assert!(b.buffer() == &[3, 12, 21, 30, 39]);
 }
 
 #[test]
