@@ -87,7 +87,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn copy_to(&self, ctx: &Context, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_copy_to_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_copy_to_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
@@ -97,7 +97,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn sum(&self, ctx: &Context, axis: usize, other: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_sum_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_sum_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
@@ -114,7 +114,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn add(&self, ctx: &Context, axis: i32, other: &ClMatrix<T>, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_add_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_add_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
@@ -131,7 +131,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn sub(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_sub_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_sub_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
@@ -145,7 +145,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn multiply(&self, ctx: &Context, axis: i32, other: &ClMatrix<T>, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_multiply_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_multiply_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
@@ -161,7 +161,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn transpose(&self, ctx: &Context, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_transpose_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_transpose_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
@@ -173,7 +173,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn dot(&self, ctx: &Context, other: &ClMatrix<T>, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_dot_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_dot_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &other.buffer);
@@ -191,7 +191,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn max(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_max_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_max_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
@@ -202,7 +202,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn min(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_min_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_min_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
@@ -214,7 +214,7 @@ impl<T: Num> ClMatrix<T> {
 
 
     pub fn dmax(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_dmax_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_dmax_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
@@ -225,7 +225,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn dmin(&self, ctx: &Context, threshold: T, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_dmin_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_dmin_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &output.buffer);
@@ -236,7 +236,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn mse(&self, ctx: &Context, train: &ClMatrix<T>, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_mse_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_mse_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &train.buffer);
@@ -254,7 +254,7 @@ impl<T: Num> ClMatrix<T> {
     }
 
     pub fn dmse(&self, ctx: &Context, train: &ClMatrix<T>, output: &ClMatrix<T>) {
-        let kernel = ctx.program.create_kernel(format!("vector_dmse_{}", T::name()).as_str());
+        let kernel = ctx.program.create_kernel(format!("matrix_dmse_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
         kernel.set_arg(1, &train.buffer);

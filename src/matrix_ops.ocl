@@ -1,4 +1,4 @@
-__kernel void vector_copy_to_f32(__global const float *f,
+__kernel void matrix_copy_to_f32(__global const float *f,
                                  __global float *t) {
 	uintptr_t i = get_global_id(0);
 	t[i] = f[i];
@@ -7,7 +7,7 @@ __kernel void vector_copy_to_f32(__global const float *f,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Sum
 
-__kernel void vector_sum_f32(__global float *a,
+__kernel void matrix_sum_f32(__global float *a,
                              __global float *b,
                              ulong rows,
                              ulong cols,
@@ -27,7 +27,7 @@ __kernel void vector_sum_f32(__global float *a,
     }
 }
 
-__kernel void vector_sum_i32(__global int *a,
+__kernel void matrix_sum_i32(__global int *a,
                              __global int *b,
                              ulong rows,
                              ulong cols,
@@ -49,7 +49,7 @@ __kernel void vector_sum_i32(__global int *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__kernel void vector_add_f32(__global const float *a,
+__kernel void matrix_add_f32(__global const float *a,
                              __global const float *b,
                              __global float *c,
                              const ulong cols,
@@ -65,28 +65,28 @@ __kernel void vector_add_f32(__global const float *a,
     }
 }
 
-/*__kernel void vector_add_f64(__global const double *a,
+/*__kernel void matrix_add_f64(__global const double *a,
                              __global const double *b,
                              __global double *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] + b[i];
 }*/
 
-__kernel void vector_add_i8(__global const char *a,
+__kernel void matrix_add_i8(__global const char *a,
                              __global const char *b,
                              __global char *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] + b[i];
 }
 
-__kernel void vector_add_i16(__global const short *a,
+__kernel void matrix_add_i16(__global const short *a,
                              __global const short *b,
                              __global short *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] + b[i];
 }
 
-__kernel void vector_add_i32(__global const int *a,
+__kernel void matrix_add_i32(__global const int *a,
                              __global const int *b,
                              __global int *c,
                              const ulong cols,
@@ -102,35 +102,35 @@ __kernel void vector_add_i32(__global const int *a,
     }
 }
 
-__kernel void vector_add_i64(__global const long *a,
+__kernel void matrix_add_i64(__global const long *a,
                              __global const long *b,
                              __global long *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] + b[i];
 }
 
-__kernel void vector_add_u8(__global const uchar *a,
+__kernel void matrix_add_u8(__global const uchar *a,
                              __global const uchar *b,
                              __global uchar *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] + b[i];
 }
 
-__kernel void vector_add_u16(__global const ushort *a,
+__kernel void matrix_add_u16(__global const ushort *a,
                              __global const ushort *b,
                              __global ushort *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] + b[i];
 }
 
-__kernel void vector_add_u32(__global const uint *a,
+__kernel void matrix_add_u32(__global const uint *a,
                              __global const uint *b,
                              __global uint *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] + b[i];
 }
 
-__kernel void vector_add_u64(__global const ulong *a,
+__kernel void matrix_add_u64(__global const ulong *a,
                              __global const ulong *b,
                              __global ulong *c,
                              const ulong cols,
@@ -148,70 +148,70 @@ __kernel void vector_add_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__kernel void vector_sub_f32(__global const float *a,
+__kernel void matrix_sub_f32(__global const float *a,
                              __global const float *b,
                              __global float *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-/*__kernel void vector_sub_f64(__global const double *a,
+/*__kernel void matrix_sub_f64(__global const double *a,
                              __global const double *b,
                              __global double *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }*/
 
-__kernel void vector_sub_i8(__global const char *a,
+__kernel void matrix_sub_i8(__global const char *a,
                              __global const char *b,
                              __global char *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-__kernel void vector_sub_i16(__global const short *a,
+__kernel void matrix_sub_i16(__global const short *a,
                              __global const short *b,
                              __global short *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-__kernel void vector_sub_i32(__global const int *a,
+__kernel void matrix_sub_i32(__global const int *a,
                              __global const int *b,
                              __global int *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-__kernel void vector_sub_i64(__global const long *a,
+__kernel void matrix_sub_i64(__global const long *a,
                              __global const long *b,
                              __global long *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-__kernel void vector_sub_u8(__global const uchar *a,
+__kernel void matrix_sub_u8(__global const uchar *a,
                              __global const uchar *b,
                              __global uchar *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-__kernel void vector_sub_u16(__global const ushort *a,
+__kernel void matrix_sub_u16(__global const ushort *a,
                              __global const ushort *b,
                              __global ushort *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-__kernel void vector_sub_u32(__global const uint *a,
+__kernel void matrix_sub_u32(__global const uint *a,
                              __global const uint *b,
                              __global uint *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] - b[i];
 }
 
-__kernel void vector_sub_u64(__global const ulong *a,
+__kernel void matrix_sub_u64(__global const ulong *a,
                              __global const ulong *b,
                              __global ulong *c) {
 	uintptr_t i = get_global_id(0);
@@ -220,14 +220,14 @@ __kernel void vector_sub_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*__kernel void vector_multiply_f32(__global const float *a,
+/*__kernel void matrix_multiply_f32(__global const float *a,
                                   __global const float *b,
                                   __global float *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }*/
 
-__kernel void vector_multiply_f32(__global const float *a,
+__kernel void matrix_multiply_f32(__global const float *a,
                                   __global const float *b,
                                   __global float *c,
                                   const ulong cols,
@@ -243,28 +243,28 @@ __kernel void vector_multiply_f32(__global const float *a,
     }
 }
 
-/*__kernel void vector_multiply_f64(__global const double *a,
+/*__kernel void matrix_multiply_f64(__global const double *a,
                                     __global const double *b,
                                     __global double *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }*/
 
-__kernel void vector_multiply_i8(__global const char *a,
+__kernel void matrix_multiply_i8(__global const char *a,
                                  __global const char *b,
                                  __global char *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_i16(__global const short *a,
+__kernel void matrix_multiply_i16(__global const short *a,
                                   __global const short *b,
                                   __global short *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_i32(__global const int *a,
+__kernel void matrix_multiply_i32(__global const int *a,
                                   __global const int *b,
                                   __global int *c,
                                   const ulong cols,
@@ -280,35 +280,35 @@ __kernel void vector_multiply_i32(__global const int *a,
     }
 }
 
-__kernel void vector_multiply_i64(__global const long *a,
+__kernel void matrix_multiply_i64(__global const long *a,
                                   __global const long *b,
                                   __global long *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u8(__global const uchar *a,
+__kernel void matrix_multiply_u8(__global const uchar *a,
                                  __global const uchar *b,
                                  __global uchar *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u16(__global const ushort *a,
+__kernel void matrix_multiply_u16(__global const ushort *a,
                                   __global const ushort *b,
                                   __global ushort *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u32(__global const uint *a,
+__kernel void matrix_multiply_u32(__global const uint *a,
                                   __global const uint *b,
                                   __global uint *c) {
 	uintptr_t i = get_global_id(0);
 	c[i] = a[i] * b[i];
 }
 
-__kernel void vector_multiply_u64(__global const ulong *a,
+__kernel void matrix_multiply_u64(__global const ulong *a,
                                   __global const ulong *b,
                                   __global ulong *c) {
 	uintptr_t i = get_global_id(0);
@@ -317,7 +317,7 @@ __kernel void vector_multiply_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__kernel void vector_transpose_f32(__global const float *a,
+__kernel void matrix_transpose_f32(__global const float *a,
                                    __global float *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -326,7 +326,7 @@ __kernel void vector_transpose_f32(__global const float *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-/*__kernel void vector_transpose_f64(__global const double *a,
+/*__kernel void matrix_transpose_f64(__global const double *a,
                                    __global double *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -335,7 +335,7 @@ __kernel void vector_transpose_f32(__global const float *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }*/
 
-__kernel void vector_transpose_i8(__global const char *a,
+__kernel void matrix_transpose_i8(__global const char *a,
                                   __global char *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -344,7 +344,7 @@ __kernel void vector_transpose_i8(__global const char *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-__kernel void vector_transpose_i16(__global const short *a,
+__kernel void matrix_transpose_i16(__global const short *a,
                                    __global short *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -353,7 +353,7 @@ __kernel void vector_transpose_i16(__global const short *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-__kernel void vector_transpose_i32(__global const int *a,
+__kernel void matrix_transpose_i32(__global const int *a,
                                    __global int *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -362,7 +362,7 @@ __kernel void vector_transpose_i32(__global const int *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-__kernel void vector_transpose_i64(__global const long *a,
+__kernel void matrix_transpose_i64(__global const long *a,
                                    __global long *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -371,7 +371,7 @@ __kernel void vector_transpose_i64(__global const long *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-__kernel void vector_transpose_u8(__global const uchar *a,
+__kernel void matrix_transpose_u8(__global const uchar *a,
                                   __global uchar *b,
                                   const ulong rows,
                                   const ulong cols) {
@@ -380,7 +380,7 @@ __kernel void vector_transpose_u8(__global const uchar *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-__kernel void vector_transpose_u16(__global const ushort *a,
+__kernel void matrix_transpose_u16(__global const ushort *a,
                                    __global ushort *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -389,7 +389,7 @@ __kernel void vector_transpose_u16(__global const ushort *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-__kernel void vector_transpose_u32(__global const uint *a,
+__kernel void matrix_transpose_u32(__global const uint *a,
                                    __global uint *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -398,7 +398,7 @@ __kernel void vector_transpose_u32(__global const uint *a,
 	b[j*rows + i] = a[i*cols + j]; // Flip the dimensions
 }
 
-__kernel void vector_transpose_u64(__global const ulong *a,
+__kernel void matrix_transpose_u64(__global const ulong *a,
                                    __global ulong *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -409,7 +409,7 @@ __kernel void vector_transpose_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__kernel void vector_dot_f32(__global const float *a,
+__kernel void matrix_dot_f32(__global const float *a,
                                __global const float *b,
                                __global float *c,
                                const ulong wa,
@@ -426,7 +426,7 @@ __kernel void vector_dot_f32(__global const float *a,
 	c[i*wb + j] = value;
 }
 
-/*__kernel void vector_dot_f64(__global const double *a,
+/*__kernel void matrix_dot_f64(__global const double *a,
                                    __global double *b,
                                    __global double *c,
                                    const ulong wa,
@@ -443,7 +443,7 @@ __kernel void vector_dot_f32(__global const float *a,
 	c[i*wb + j] = value;
 }*/
 
-__kernel void vector_dot_i8(__global const char *a,
+__kernel void matrix_dot_i8(__global const char *a,
                               __global char *b,
                               const ulong rows,
                               const ulong cols) {
@@ -453,7 +453,7 @@ __kernel void vector_dot_i8(__global const char *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_i16(__global const short *a,
+__kernel void matrix_dot_i16(__global const short *a,
                                    __global short *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -463,7 +463,7 @@ __kernel void vector_dot_i16(__global const short *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_i32(__global const int *a,
+__kernel void matrix_dot_i32(__global const int *a,
                                    __global int *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -473,7 +473,7 @@ __kernel void vector_dot_i32(__global const int *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_i64(__global const long *a,
+__kernel void matrix_dot_i64(__global const long *a,
                                    __global long *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -483,7 +483,7 @@ __kernel void vector_dot_i64(__global const long *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u8(__global const uchar *a,
+__kernel void matrix_dot_u8(__global const uchar *a,
                                   __global uchar *b,
                                   const ulong rows,
                                   const ulong cols) {
@@ -493,7 +493,7 @@ __kernel void vector_dot_u8(__global const uchar *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u16(__global const ushort *a,
+__kernel void matrix_dot_u16(__global const ushort *a,
                                    __global ushort *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -503,7 +503,7 @@ __kernel void vector_dot_u16(__global const ushort *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u32(__global const uint *a,
+__kernel void matrix_dot_u32(__global const uint *a,
                                    __global uint *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -513,7 +513,7 @@ __kernel void vector_dot_u32(__global const uint *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void vector_dot_u64(__global const ulong *a,
+__kernel void matrix_dot_u64(__global const ulong *a,
                                    __global ulong *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -526,7 +526,7 @@ __kernel void vector_dot_u64(__global const ulong *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Max
 
-__kernel void vector_max_f32(__global float *a,
+__kernel void matrix_max_f32(__global float *a,
                              __global float *b,
                              float const threshold) {
 	uintptr_t i = get_global_id(0);
@@ -536,7 +536,7 @@ __kernel void vector_max_f32(__global float *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Min
 
-__kernel void vector_min_f32(__global float *a,
+__kernel void matrix_min_f32(__global float *a,
                              __global float *b,
                              const float threshold) {
 	uintptr_t i = get_global_id(0);
@@ -546,7 +546,7 @@ __kernel void vector_min_f32(__global float *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // derivative of max with respect to a
 
-__kernel void vector_dmax_f32(__global float *a,
+__kernel void matrix_dmax_f32(__global float *a,
                               __global float *b,
                               const float threshold) {
 	uintptr_t i = get_global_id(0);
@@ -560,7 +560,7 @@ __kernel void vector_dmax_f32(__global float *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // derivative of min with respect to a
 
-__kernel void vector_dmin_f32(__global float *a,
+__kernel void matrix_dmin_f32(__global float *a,
                               __global float *b,
                               const float threshold) {
 	uintptr_t i = get_global_id(0);
@@ -574,7 +574,7 @@ __kernel void vector_dmin_f32(__global float *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mean Squared Error (MSE)
 
-__kernel void vector_mse_f32(__global float *h,
+__kernel void matrix_mse_f32(__global float *h,
                              __global float *y,
                              __global float *out,
                              const ulong rows,
@@ -597,7 +597,7 @@ __kernel void vector_mse_f32(__global float *h,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mean Squared Error derivative
 
-__kernel void vector_dmse_f32(__global float *h,
+__kernel void matrix_dmse_f32(__global float *h,
                               __global float *y,
                               __global float *out,
                               const ulong rows,
