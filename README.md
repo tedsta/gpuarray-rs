@@ -1,6 +1,12 @@
 # matrix-rs
 
-Make use of GPU-powered matrix operations from Rust! Matrix-rs uses OpenCL but hides all the details. In the future it may be generalized to multiple backends.
+Make use of GPU-powered matrix operations from Rust! Matrix-rs uses OpenCL but hides all the details. The API is still very crude. In the future it may be generalized to multiple backends.
+
+### Road map
+
+- Rethink naming. ClMatrix needs to be renamed if we generalize to multiple backends.
+- Make operations pluggable rather than having methods on ClMatrix.
+- Generalize to multiple backends
 
 ### Example
 
