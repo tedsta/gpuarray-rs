@@ -1,18 +1,18 @@
 extern crate matrix;
 
 use matrix::Context;
-use matrix::cl_matrix::{ClMatrix, ClMatrixMode};
-use matrix::matrix::Matrix;
+use matrix::tensor::{Tensor, TensorMode};
+use matrix::array::Array;
 
 fn main() {
     let ref ctx = Context::new();
 
-    let a = Matrix::from_vec(5, 10, (0..5*10).map(|x| x as f32).collect());
-    let b = Matrix::from_vec(10, 15, (0..10*15).map(|x| (x as f32)*2.0).collect());
+    let a = Array::from_vec(vec![5, 10], (0..5*10).map(|x| x as f32).collect());
+    let b = Array::from_vec(vec![10, 15], (0..10*15).map(|x| (x as f32)*2.0).collect());
 
-    let a_cl = ClMatrix::from_matrix(ctx, &a, ClMatrixMode::In);
-    let b_cl = ClMatrix::from_matrix(ctx, &b, ClMatrixMode::In);
-    let mut c_cl: ClMatrix<f32> = ClMatrix::new(ctx, 5, 15, ClMatrixMode::Mut);
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
+    let b_cl = Tensor::from_array(ctx, &b, TensorMode::In);
+    let mut c_cl: Tensor<f32> = Tensor::new(ctx, vec![5, 15], TensorMode::Mut);
 
     a_cl.dot(ctx, &b_cl, &mut c_cl);
     
