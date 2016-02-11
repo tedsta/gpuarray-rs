@@ -22,7 +22,7 @@ fn main() {
 
     for i in 0..100 {
         for j in 0..1000 {
-            assert!(d[[j, i].as_ref()] == a[[i, j].as_ref()] + b[[i, j].as_ref()]);
+            assert!(d[&[j, i]] == a[&[i, j]] + b[&[i, j]]);
         }
     }
 }

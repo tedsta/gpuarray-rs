@@ -30,17 +30,15 @@ impl<T: Num> Array<T> {
         }
     }
 
-    pub fn get<'a>(&'a self, coords: &[usize]) -> &'a T {
-        let index: usize = coords.iter()
-                                 .zip(self.dim_steps.iter())
+    pub fn get<'a, 'b, I: IntoIterator<Item=&'b usize>>(&'a self, coords: I) -> &'a T {
+        let index: usize = coords.into_iter().zip(self.dim_steps.iter())
                                  .map(|(c, s)| (*c)*(*s))
                                  .sum();
         &self.buffer[index]
     }
 
-    pub fn get_mut<'a>(&'a mut self, coords: &[usize]) -> &'a mut T {
-        let index: usize = coords.iter()
-                                 .zip(self.dim_steps.iter())
+    pub fn get_mut<'a, 'b, I: IntoIterator<Item=&'b usize>>(&'a mut self, coords: I) -> &'a mut T {
+        let index: usize = coords.into_iter().zip(self.dim_steps.iter())
                                  .map(|(c, s)| (*c)*(*s))
                                  .sum();
         &mut self.buffer[index]
@@ -55,10 +53,10 @@ impl<T: Num> Array<T> {
     }
 }
 
-impl<'a, T: Num> Index<&'a [usize]> for Array<T> {
+impl<'a, 'b, T: Num, I: IntoIterator<Item=&'b usize>> Index<I> for Array<T> {
     type Output = T;
 
-    fn index<'b>(&'b self, index: &'a [usize]) -> &'b T {
+    fn index<'r>(&'r self, index: I) -> &'r T {
         self.get(index)
     }
 }
@@ -83,7 +81,7 @@ fn compute_dim_steps(shape: &[usize]) -> Vec<usize> {
     dim_steps[shape.len()-1] = 1;
     for i in 1..shape.len() {
         let cur_index = shape.len()-i-1;
-        dim_steps[cur_index] = shape[cur_index]*shape[cur_index+1];
+        dim_steps[cur_index] = shape[cur_index]*dim_steps[cur_index+1];
     }
     dim_steps
 }
