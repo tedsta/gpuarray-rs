@@ -304,19 +304,21 @@ fn tensor_sum_axis1() {
 fn tensor_add() {
     let ref ctx = Context::new();
 
-    let a = Array::from_vec(vec![1, 10000], (0..10000).collect());
-    let b = Array::from_vec(vec![1, 10000], (0..10000).map(|x| x*2).collect());
+    let a = Array::from_vec(vec![5, 10000], (0..5*10000).collect());
+    let b = Array::from_vec(vec![5, 10000], (0..5*10000).map(|x| x*2).collect());
 
     let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
     let b_cl = Tensor::from_array(ctx, &b, TensorMode::In);
-    let c_cl: Tensor<i32> = Tensor::new(ctx, vec![1, 10000], TensorMode::Out);
+    let c_cl: Tensor<i32> = Tensor::new(ctx, vec![5, 10000], TensorMode::Out);
 
     a_cl.add(ctx, -1, &b_cl, &c_cl);
     
     let c = c_cl.get(ctx);
 
-    for i in 0..10000 {
-        assert!(c[[0, i].as_ref()] == a[[0, i].as_ref()] + b[[0, i].as_ref()]);
+    for i in 0..5 {
+        for j in 0..10000 {
+            assert!(c[&[i, j]] == a[&[i, j]] + b[&[i, j]]);
+        }
     }
 }
 
