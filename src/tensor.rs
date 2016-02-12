@@ -274,6 +274,23 @@ impl<T: Num> Tensor<T> {
 pub type Event = opencl::hl::Event;
 
 #[test]
+fn tensor_transpose() {
+    let ref ctx = Context::new();
+
+    let a: Array<i32> = Array::from_vec(vec![5, 3], (0..15).collect());
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
+    let b_cl = Tensor::new(ctx, vec![3, 5], TensorMode::Out);
+
+    a_cl.transpose(ctx, &b_cl);
+    let b = b_cl.get(ctx);
+
+    assert!(b.buffer() == &[0, 3, 6, 9, 12,
+                            1, 4, 7, 10, 13,
+                            2, 5, 8, 11, 14]);
+}
+
+#[test]
 fn tensor_sum_axis0() {
     let ref ctx = Context::new();
 
