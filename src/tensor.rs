@@ -170,15 +170,10 @@ impl<T: Num> Tensor<T> {
         let kernel = ctx.program.create_kernel(format!("array_dot_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
-        println!("1");
         kernel.set_arg(1, &other.buffer);
-        println!("2");
         kernel.set_arg(2, &output.buffer);
-        println!("3");
         kernel.set_arg(3, &self.shape[1]);
-        println!("4");
         kernel.set_arg(4, &other.shape[1]);
-        println!("5");
 
         let new_event = {
             let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
