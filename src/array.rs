@@ -85,3 +85,38 @@ fn compute_dim_steps(shape: &[usize]) -> Vec<usize> {
     }
     dim_steps
 }
+
+#[test]
+fn test_array_indexing() {
+    let a = Array::from_vec(vec![2, 3, 4], vec![1, 2, 3, 4,
+                                                5, 6, 7, 8,
+                                                9, 10, 11, 12,
+
+                                                13, 14, 15, 16,
+                                                17, 18, 19, 20,
+                                                21, 22, 23, 24]);
+    assert!(a[&[0, 0, 0]] == 1);
+    assert!(a[&[0, 0, 1]] == 2);
+    assert!(a[&[0, 0, 2]] == 3);
+    assert!(a[&[0, 0, 3]] == 4);
+    assert!(a[&[0, 1, 0]] == 5);
+    assert!(a[&[0, 1, 1]] == 6);
+    assert!(a[&[0, 1, 2]] == 7);
+    assert!(a[&[0, 1, 3]] == 8);
+    assert!(a[&[0, 2, 0]] == 9);
+    assert!(a[&[0, 2, 1]] == 10);
+    assert!(a[&[0, 2, 2]] == 11);
+    assert!(a[&[0, 2, 3]] == 12);
+    assert!(a[&[1, 0, 0]] == 13);
+    assert!(a[&[1, 0, 1]] == 14);
+    assert!(a[&[1, 0, 2]] == 15);
+    assert!(a[&[1, 0, 3]] == 16);
+    assert!(a[&[1, 1, 0]] == 17);
+    assert!(a[&[1, 1, 1]] == 18);
+    assert!(a[&[1, 1, 2]] == 19);
+    assert!(a[&[1, 1, 3]] == 20);
+    assert!(a[&[1, 2, 0]] == 21);
+    assert!(a[&[1, 2, 1]] == 22);
+    assert!(a[&[1, 2, 2]] == 23);
+    assert!(a[&[1, 2, 3]] == 24);
+}
