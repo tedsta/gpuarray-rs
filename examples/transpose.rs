@@ -1,8 +1,8 @@
-extern crate matrix;
+extern crate gpuarray as ga;
 
-use matrix::Context;
-use matrix::tensor::{Tensor, TensorMode};
-use matrix::array::Array;
+use ga::Context;
+use ga::tensor::{Tensor, TensorMode};
+use ga::array::Array;
 
 fn main() {
     let ref ctx = Context::new();
@@ -12,9 +12,10 @@ fn main() {
 
     let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
     let b_cl = Tensor::from_array(ctx, &b, TensorMode::In);
+    let mut c_cl = Tensor::new(ctx, vec![1000, 100], TensorMode::In);
     let mut d_cl: Tensor<f32> = Tensor::new(ctx, vec![1000, 100], TensorMode::Out);
 
-    a_cl.add(ctx, -1, &b_cl, &mut b_cl);
+    a_cl.add(ctx, -1, &b_cl, &mut c_cl);
     c_cl.transpose(ctx, &mut d_cl);
     
     let d = d_cl.get(ctx);

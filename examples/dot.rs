@@ -1,8 +1,8 @@
-extern crate matrix;
+extern crate gpuarray as ga;
 
-use matrix::Context;
-use matrix::tensor::{Tensor, TensorMode};
-use matrix::array::Array;
+use ga::Context;
+use ga::tensor::{Tensor, TensorMode};
+use ga::array::Array;
 
 fn main() {
     let ref ctx = Context::new();

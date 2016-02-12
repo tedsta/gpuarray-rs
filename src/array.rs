@@ -34,6 +34,7 @@ impl<T: Num> Array<T> {
         let index: usize = coords.into_iter().zip(self.dim_steps.iter())
                                  .map(|(c, s)| (*c)*(*s))
                                  .sum();
+        println!("index: {}", index);
         &self.buffer[index]
     }
 
@@ -81,7 +82,8 @@ fn compute_dim_steps(shape: &[usize]) -> Vec<usize> {
     dim_steps[shape.len()-1] = 1;
     for i in 1..shape.len() {
         let cur_index = shape.len()-i-1;
-        dim_steps[cur_index] = shape[cur_index]*dim_steps[cur_index+1];
+        dim_steps[cur_index] = shape[cur_index+1]*dim_steps[cur_index+1];
     }
+    println!("{:?}", dim_steps);
     dim_steps
 }
