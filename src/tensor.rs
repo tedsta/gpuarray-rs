@@ -170,10 +170,15 @@ impl<T: Num> Tensor<T> {
         let kernel = ctx.program.create_kernel(format!("array_dot_{}", T::name()).as_str());
 
         kernel.set_arg(0, &self.buffer);
+        println!("1");
         kernel.set_arg(1, &other.buffer);
+        println!("2");
         kernel.set_arg(2, &output.buffer);
+        println!("3");
         kernel.set_arg(3, &self.shape[1]);
+        println!("4");
         kernel.set_arg(4, &other.shape[1]);
+        println!("5");
 
         let new_event = {
             let event_list: &[Option<Ref<Event>>] = &[self.get_event(), other.get_event()];
@@ -373,4 +378,26 @@ fn tensor_multiply_axis1() {
     assert!(a.buffer() == &[0,  0,  0,  0,  0,
                             5,  6,  7,  8,  9,
                             20, 22, 24, 26, 28]);
+}
+
+#[test]
+fn tensor_dot() {
+    let ref ctx = Context::new();
+
+    let a = Array::from_vec(vec![3, 5], (0i32..15).collect());
+    let b = Array::from_vec(vec![5, 2], (0..10).collect());
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::Mut);
+    let b_cl = Tensor::from_array(ctx, &b, TensorMode::In);
+    let c_cl = Tensor::new(ctx, vec![3, 2], TensorMode::In);
+
+    a_cl.dot(ctx, &b_cl, &c_cl); // c = a*b
+
+    let c = c_cl.get(ctx);
+
+    println!("{:?}", c);
+
+    assert!(c.buffer() == &[60, 70,
+                            160, 195,
+                            260, 320]);
 }

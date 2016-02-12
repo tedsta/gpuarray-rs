@@ -410,10 +410,10 @@ __kernel void array_transpose_u64(__global const ulong *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 __kernel void array_dot_f32(__global const float *a,
-                               __global const float *b,
-                               __global float *c,
-                               const ulong wa,
-                               const ulong wb) {
+                            __global const float *b,
+                            __global float *c,
+                            const ulong wa,
+                            const ulong wb) {
 	ulong i = get_global_id(0);
 	ulong j = get_global_id(1);
 
@@ -464,13 +464,20 @@ __kernel void array_dot_i16(__global const short *a,
 }
 
 __kernel void array_dot_i32(__global const int *a,
-                                   __global int *b,
-                                   const ulong rows,
-                                   const ulong cols) {
+                            __global const int *b,
+                            __global int *c,
+                            const ulong wa,
+                            const ulong wb) {
 	ulong i = get_global_id(0);
-    ulong row = i / cols;
-    ulong col = i % cols;
-	b[col*rows + row] = a[i]; // Flip the dimensions
+	ulong j = get_global_id(1);
+
+    int value = 0;
+    for (ulong k = 0; k < wa; k++) {
+        int e_a = a[i*wa + k]; // Element a
+        int e_b = b[k*wb + j]; // Element a
+        value += e_a*e_b;
+    }
+	c[i*wb + j] = value;
 }
 
 __kernel void array_dot_i64(__global const long *a,
