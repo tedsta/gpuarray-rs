@@ -541,16 +541,6 @@ __kernel void array_max_f32(__global float *a,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Min
-
-__kernel void array_min_f32(__global float *a,
-                             __global float *b,
-                             const float threshold) {
-	uintptr_t i = get_global_id(0);
-	b[i] = min(threshold, a[i]);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // derivative of max with respect to a
 
 __kernel void array_dmax_f32(__global float *a,
@@ -562,6 +552,16 @@ __kernel void array_dmax_f32(__global float *a,
     } else {
         b[i] = 0;
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Min
+
+__kernel void array_min_f32(__global float *a,
+                             __global float *b,
+                             const float threshold) {
+	uintptr_t i = get_global_id(0);
+	b[i] = min(threshold, a[i]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -614,4 +614,46 @@ __kernel void array_dmse_f32(__global float *h,
 
     uintptr_t index = i*cols + j;
     out[index] = h[index] - y[index];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// tanh
+
+__kernel void array_tanh_f32(__global float *a,
+                             __global float *b) {
+	uintptr_t i = get_global_id(0);
+	b[i] = tanh(a[i]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// derivative of tanh
+
+__kernel void array_dtanh_f32(__global float *a,
+                              __global float *b) {
+	uintptr_t i = get_global_id(0);
+    // dtanh = 1 - tanh(x)^2
+	b[i] = tanh(a[i]);
+    b[i] = 1.0 - b[i]*b[i];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// sigmoid
+
+float sigmoid(float z){return 1.0/(1.0+exp(-z));}
+
+__kernel void array_sigmoid_f32(__global float *a,
+                                __global float *b) {
+	uintptr_t i = get_global_id(0);
+	b[i] = sigmoid(a[i]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// derivative of sigmoid
+
+__kernel void array_dsigmoid_f32(__global float *a,
+                                 __global float *b) {
+	uintptr_t i = get_global_id(0);
+    // dsigmoid = sigmoid(x)*(1 - sigmoid(x))
+	b[i] = sigmoid(a[i]);
+    b[i] = b[i]*(1.0 - b[i]);
 }

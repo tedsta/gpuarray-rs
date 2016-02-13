@@ -264,6 +264,46 @@ impl<T: Num> Tensor<T> {
         };
         output.set_event(new_event);
     }
+
+    pub fn tanh(&self, ctx: &Context, output: &Tensor<T>) {
+        let kernel = ctx.program.create_kernel(format!("array_tanh_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
+    }
+
+    pub fn dtanh(&self, ctx: &Context, output: &Tensor<T>) {
+        let kernel = ctx.program.create_kernel(format!("array_dtanh_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
+    }
+
+    pub fn sigmoid(&self, ctx: &Context, output: &Tensor<T>) {
+        let kernel = ctx.program.create_kernel(format!("array_sigmoid_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
+    }
+
+    pub fn dsigmoid(&self, ctx: &Context, output: &Tensor<T>) {
+        let kernel = ctx.program.create_kernel(format!("array_dsigmoid_{}", T::name()).as_str());
+
+        kernel.set_arg(0, &self.buffer);
+        kernel.set_arg(1, &output.buffer);
+
+        output.set_event(ctx.queue.enqueue_async_kernel(&kernel, self.buffer.len(),
+                                                        None, self.get_event().as_ref().map(|x| &**x)));
+    }
 }
 
 pub type Event = opencl::hl::Event;
@@ -412,4 +452,87 @@ fn tensor_dot() {
     assert!(c.buffer() == &[60, 70,
                             160, 195,
                             260, 320]);
+}
+
+#[test]
+fn tensor_tanh() {
+    let ref ctx = Context::new();
+
+    let a: Array<f32> = Array::from_vec(vec![5, 3], (0..15).map(|x| x as f32).collect());
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
+    let b_cl = Tensor::new(ctx, vec![5, 3], TensorMode::Out);
+
+    a_cl.tanh(ctx, &b_cl);
+    let b = b_cl.get(ctx);
+
+    println!("{:?}", b);
+    assert!(b.buffer() == &[0.0, 0.7615941, 0.9640276,
+                            0.9950548, 0.9993293, 0.99990916,
+                            0.99998766, 0.99999833, 0.99999976,
+                            1.0, 1.0, 1.0,
+                            1.0, 1.0, 1.0]);
+
+}
+
+#[test]
+fn tensor_dtanh() {
+    let ref ctx = Context::new();
+
+    let a: Array<f32> = Array::from_vec(vec![5, 3], (0..15).map(|x| x as f32).collect());
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
+    let b_cl = Tensor::new(ctx, vec![5, 3], TensorMode::Out);
+
+    a_cl.dtanh(ctx, &b_cl);
+    let b = b_cl.get(ctx);
+
+    println!("{:?}", b);
+    assert!(b.buffer() == &[1.0, 0.4199744, 0.070650816,
+                            0.009865999, 0.0013408661, 0.00018167496,
+                            0.000024676323, 0.00000333786, 0.00000047683716,
+                            0.0, 0.0, 0.0,
+                            0.0, 0.0, 0.0]);
+
+}
+
+#[test]
+fn tensor_sigmoid() {
+    let ref ctx = Context::new();
+
+    let a: Array<f32> = Array::from_vec(vec![5, 3], (0..15).map(|x| x as f32).collect());
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
+    let b_cl = Tensor::new(ctx, vec![5, 3], TensorMode::Out);
+
+    a_cl.sigmoid(ctx, &b_cl);
+    let b = b_cl.get(ctx);
+
+    println!("{:?}", b);
+    assert!(b.buffer() == &[0.5, 0.7310586, 0.880797,
+                            0.9525742, 0.98201376, 0.9933072,
+                            0.9975274, 0.999089, 0.99966466,
+                            0.9998766, 0.9999546, 0.9999833,
+                            0.9999938, 0.99999774, 0.99999917]);
+
+}
+
+#[test]
+fn tensor_dsigmoid() {
+    let ref ctx = Context::new();
+
+    let a: Array<f32> = Array::from_vec(vec![5, 3], (0..15).map(|x| x as f32).collect());
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
+    let b_cl = Tensor::new(ctx, vec![5, 3], TensorMode::Out);
+
+    a_cl.dsigmoid(ctx, &b_cl);
+    let b = b_cl.get(ctx);
+
+    println!("{:?}", b);
+    assert!(b.buffer() == &[0.25, 0.19661193, 0.10499363,
+                            0.0451766, 0.017662734, 0.006648033,
+                            0.0024664658, 0.00091016747, 0.00033522327,
+                            0.0001233664, 0.000045416677, 0.000016689022,
+                            0.000006198845, 0.0000022649713, 0.00000083446434]);
 }
