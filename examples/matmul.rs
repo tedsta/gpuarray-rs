@@ -12,9 +12,9 @@ fn main() {
 
     let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
     let b_cl = Tensor::from_array(ctx, &b, TensorMode::In);
-    let mut c_cl: Tensor<f32> = Tensor::new(ctx, vec![5, 15], TensorMode::Mut);
+    let c_cl: Tensor<f32> = Tensor::new(ctx, vec![5, 15], TensorMode::Mut);
 
-    a_cl.dot(ctx, &b_cl, &mut c_cl);
+    ga::matmul(ctx, &a_cl, &b_cl, &c_cl);
     
     let c = c_cl.get(ctx);
 

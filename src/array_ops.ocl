@@ -409,7 +409,7 @@ __kernel void array_transpose_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__kernel void array_dot_f32(__global const float *a,
+__kernel void array_matmul_f32(__global const float *a,
                             __global const float *b,
                             __global float *c,
                             const ulong wa,
@@ -426,7 +426,7 @@ __kernel void array_dot_f32(__global const float *a,
 	c[i*wb + j] = value;
 }
 
-/*__kernel void array_dot_f64(__global const double *a,
+/*__kernel void array_matmul_f64(__global const double *a,
                                    __global double *b,
                                    __global double *c,
                                    const ulong wa,
@@ -443,7 +443,7 @@ __kernel void array_dot_f32(__global const float *a,
 	c[i*wb + j] = value;
 }*/
 
-__kernel void array_dot_i8(__global const char *a,
+__kernel void array_matmul_i8(__global const char *a,
                               __global char *b,
                               const ulong rows,
                               const ulong cols) {
@@ -453,7 +453,7 @@ __kernel void array_dot_i8(__global const char *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void array_dot_i16(__global const short *a,
+__kernel void array_matmul_i16(__global const short *a,
                                    __global short *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -463,7 +463,7 @@ __kernel void array_dot_i16(__global const short *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void array_dot_i32(__global const int *a,
+__kernel void array_matmul_i32(__global const int *a,
                             __global const int *b,
                             __global int *c,
                             const ulong wa,
@@ -480,7 +480,7 @@ __kernel void array_dot_i32(__global const int *a,
 	c[i*wb + j] = value;
 }
 
-__kernel void array_dot_i64(__global const long *a,
+__kernel void array_matmul_i64(__global const long *a,
                                    __global long *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -490,7 +490,7 @@ __kernel void array_dot_i64(__global const long *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void array_dot_u8(__global const uchar *a,
+__kernel void array_matmul_u8(__global const uchar *a,
                                   __global uchar *b,
                                   const ulong rows,
                                   const ulong cols) {
@@ -500,7 +500,7 @@ __kernel void array_dot_u8(__global const uchar *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void array_dot_u16(__global const ushort *a,
+__kernel void array_matmul_u16(__global const ushort *a,
                                    __global ushort *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -510,7 +510,7 @@ __kernel void array_dot_u16(__global const ushort *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void array_dot_u32(__global const uint *a,
+__kernel void array_matmul_u32(__global const uint *a,
                                    __global uint *b,
                                    const ulong rows,
                                    const ulong cols) {
@@ -520,7 +520,7 @@ __kernel void array_dot_u32(__global const uint *a,
 	b[col*rows + row] = a[i]; // Flip the dimensions
 }
 
-__kernel void array_dot_u64(__global const ulong *a,
+__kernel void array_matmul_u64(__global const ulong *a,
                                    __global ulong *b,
                                    const ulong rows,
                                    const ulong cols) {

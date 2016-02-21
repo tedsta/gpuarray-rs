@@ -5,3 +5,6 @@ authors = ["Theodore DeRego <tderego94@gmail.com>"]
 
 [dependencies.opencl]
 git = "https://github.com/tedsta/rust-opencl"
+
+[dependencies]
+libc = "^0.1.8"
