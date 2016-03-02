@@ -9,7 +9,7 @@ pub struct Context {
 
 impl Context {
     pub fn new() -> Context {
-        let ker = include_str!("array_ops.ocl");
+        let ker = include_str!("cl_ops.ocl");
 
         let (device, ctx, queue) = opencl::util::create_compute_context().unwrap();
 

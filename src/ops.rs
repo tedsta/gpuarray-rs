@@ -40,6 +40,21 @@ pub fn add<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, outpu
     kernel.set_arg(3, &a.shape()[1]);
     kernel.set_arg(4, &axis);
 
+    let new_event = {
+        let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
+        ctx.queue.enqueue_async_kernel(&kernel, (a.shape()[0], a.shape()[1]), None, event_list)
+    };
+    output.set_event(new_event);
+}
+
+pub fn add_slice<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<T>) {
+    let kernel = ctx.program.create_kernel(format!("array_add_slice_{}", T::name()).as_str());
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, output);
+    kernel.set_arg(3, &a.shape()[1]);
+    //kernel.set_arg(4, &axis);
 
     let new_event = {
         let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
