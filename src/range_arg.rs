@@ -1,8 +1,8 @@
 use std::ops::{Range, RangeFrom, RangeTo, RangeFull};
 
 /*pub struct RangeArg {
-    pub start: Option<usize>,
-    pub end: Option<usize>,
+    pub start: usize,
+    pub end: usize,
 }
 
 impl<T> Deref for T where T: IRangeArg {
@@ -16,56 +16,56 @@ impl<T> Deref for T where T: IRangeArg {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 pub trait RangeArg {
-    fn start(&self) -> Option<usize>;
-    fn end(&self) -> Option<usize>;
+    fn start(&self) -> usize;
+    fn end(&self) -> usize;
 }
 
 impl RangeArg for Range<usize> {
-    fn start(&self) -> Option<usize> {
-        Some(self.start)
+    fn start(&self) -> usize {
+        self.start
     }
 
-    fn end(&self) -> Option<usize> {
-        Some(self.end)
+    fn end(&self) -> usize {
+        self.end
     }
 }
 
 impl RangeArg for RangeFrom<usize> {
-    fn start(&self) -> Option<usize> {
-        Some(self.start)
+    fn start(&self) -> usize {
+        self.start
     }
 
-    fn end(&self) -> Option<usize> {
-        None
+    fn end(&self) -> usize {
+        0
     }
 }
 
 impl RangeArg for RangeTo<usize> {
-    fn start(&self) -> Option<usize> {
-        None
+    fn start(&self) -> usize {
+        0
     }
 
-    fn end(&self) -> Option<usize> {
-        Some(self.end)
+    fn end(&self) -> usize {
+        self.end
     }
 }
 
 impl RangeArg for RangeFull {
-    fn start(&self) -> Option<usize> {
-        None
+    fn start(&self) -> usize {
+        0
     }
 
-    fn end(&self) -> Option<usize> {
-        None
+    fn end(&self) -> usize {
+        0
     }
 }
 
 impl RangeArg for usize {
-    fn start(&self) -> Option<usize> {
-        Some(*self)
+    fn start(&self) -> usize {
+        *self
     }
 
-    fn end(&self) -> Option<usize> {
-        Some(*self + 1)
+    fn end(&self) -> usize {
+        *self + 1
     }
 }

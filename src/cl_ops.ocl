@@ -13,20 +13,20 @@
     return (row+off[0])*ds[0] + (col+off[1])*ds[1] + (depth+off[2]);
 }*/
 
-uintptr_t index2(__constant uintptr_t* ds, __constant uintptr_t* off, uintptr_t row, uintptr_t col) {
-    return (row+off[0])*ds[0] + (col+off[1]);
+ulong index2(ulong rows, ulong row, ulong col) {
+    return row*rows + col;
 }
 
-__kernel void array_add_slice_f32(__global float *a, __global float *b, __global float *c,
-                                  __constant uintptr_t* a_off,
-                                  __constant uintptr_t* b_off,
-                                  __constant uintptr_t* c_off,
-                                  __constant uintptr_t* dim_steps) {
-	uintptr_t i = get_global_id(0);
-	uintptr_t j = get_global_id(1);
-    uintptr_t ai = index2(dim_steps, a_off, i, j);
-    uintptr_t bi = index2(dim_steps, b_off, i, j);
-    uintptr_t ci = index2(dim_steps, c_off, i, j);
+__kernel void array_add_slice_i32(__global int* a, __global int* b, __global int* c,
+                                  ulong a_off0, ulong a_off1,
+                                  ulong b_off0, ulong b_off1,
+                                  ulong c_off0, ulong c_off1,
+                                  ulong a_cols, ulong b_cols, ulong c_cols) {
+	ulong i = get_global_id(0);
+	ulong j = get_global_id(1);
+    ulong ai = index2(a_cols, i+a_off0, j+a_off1);
+    ulong bi = index2(b_cols, i+b_off0, j+b_off1);
+    ulong ci = index2(c_cols, i+c_off0, j+c_off1);
     c[ci] = a[ai] + b[bi];
 }
 

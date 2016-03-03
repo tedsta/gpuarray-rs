@@ -2,7 +2,7 @@ use std::cell::Ref;
 
 use context::Context;
 use num::Num;
-use tensor::{Event, Tensor};
+use tensor::{Event, Tensor, TensorView};
 
 pub fn copy_to<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     let kernel = ctx.program.create_kernel(format!("array_copy_to_{}", T::name()).as_str());
@@ -47,18 +47,29 @@ pub fn add<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, outpu
     output.set_event(new_event);
 }
 
-pub fn add_slice<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<T>) {
+pub fn add_slice<T: Num>(ctx: &Context, a: &TensorView<T>, b: &TensorView<T>, output: &TensorView<T>) {
     let kernel = ctx.program.create_kernel(format!("array_add_slice_{}", T::name()).as_str());
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
     kernel.set_arg(2, output);
-    kernel.set_arg(3, &a.shape()[1]);
-    //kernel.set_arg(4, &axis);
+    println!("1 {:?}", a.offsets[0]);
+    kernel.set_arg(3, &a.offsets[0]);
+    println!("2");
+    kernel.set_arg(4, &a.offsets[1]);
+    kernel.set_arg(5, &b.offsets[0]);
+    kernel.set_arg(6, &b.offsets[1]);
+    kernel.set_arg(7, &output.offsets[0]);
+    kernel.set_arg(8, &output.offsets[1]);
+    println!("2");
+    kernel.set_arg(9, &a.shape[1]);
+    kernel.set_arg(10, &b.shape[1]);
+    kernel.set_arg(11, &output.shape[1]);
+    println!("3");
 
     let new_event = {
         let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
-        ctx.queue.enqueue_async_kernel(&kernel, (a.shape()[0], a.shape()[1]), None, event_list)
+        ctx.queue.enqueue_async_kernel(&kernel, (a.slice_shape[0], a.slice_shape[1]), None, event_list)
     };
     output.set_event(new_event);
 }
