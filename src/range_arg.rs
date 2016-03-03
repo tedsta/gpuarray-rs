@@ -18,6 +18,7 @@ impl<T> Deref for T where T: IRangeArg {
 pub trait RangeArg {
     fn start(&self) -> usize;
     fn end(&self) -> usize;
+    fn len(&self) -> usize { self.end() - self.start() }
 }
 
 impl RangeArg for Range<usize> {

@@ -88,15 +88,11 @@ impl<T: Num> Tensor<T> {
         }
     }
 
-    pub fn slice<'a>(&'a self, r: &[&RangeArg]) -> TensorView<'a, T> {
-        let offsets: Vec<usize> = r.iter().map(|x| x.start()).collect();
-        let slice_shape: Vec<usize> = r.iter().map(|x| x.end()-x.start()).collect();
-        println!("{:?}", offsets);
+    pub fn slice<'t, 'r>(&'t self, r: &'r [&'r RangeArg]) -> TensorView<'t, 'r, T> {
         TensorView {
             shape: self.shape.as_ref(),
             dim_steps: self.dim_steps.as_ref(),
-            offsets: offsets,
-            slice_shape: slice_shape,
+            ranges: r,
             buffer: &self.buffer,
             event: &self.event,
         }
@@ -109,22 +105,21 @@ impl<T: Num> KernelArg for Tensor<T> {
     }
 }
 
-impl<'t, T: Num> KernelArg for TensorView<'t, T> {
+impl<'t, 'r, T: Num> KernelArg for TensorView<'t, 'r, T> {
     fn get_value(&self) -> (libc::size_t, *const libc::c_void) {
         self.buffer.get_value()
     }
 }
 
-pub struct TensorView<'t, T: Num+'t> {
+pub struct TensorView<'t, 'r, T: Num+'t> {
     pub shape: &'t [usize],
     pub dim_steps: &'t [usize],
-    pub offsets: Vec<usize>,
-    pub slice_shape: Vec<usize>,
+    ranges: &'r [&'r RangeArg],
     buffer: &'t CLBuffer<T>,
     event: &'t RefCell<Option<Event>>,
 }
 
-impl<'t, T: Num> TensorView<'t, T> {
+impl<'t, 'r, T: Num> TensorView<'t, 'r, T> {
     pub fn set_event(&self, e: Event) {
         *self.event.borrow_mut() = Some(e);
     }
@@ -135,6 +130,18 @@ impl<'t, T: Num> TensorView<'t, T> {
         } else {
             None
         }
+    }
+
+    pub fn view_offset(&self, dim: usize) -> usize {
+        self.ranges[dim].start()
+    }
+
+    pub fn view_shape(&self, dim: usize) -> usize {
+        self.ranges[dim].len()
+    }
+
+    pub fn len(&self) -> usize {
+        self.buffer.len()
     }
 }
 
@@ -154,7 +161,7 @@ fn test_tensor_slicing() {
                                              14, 15, 16]);
     let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
     let slice: &[&RangeArg] = &[&(1..3), &1];
-    let at_view = at.slice(slice);
+    let atv = at.slice(slice);
 
     let b = Array::from_vec(vec![4, 4], vec![1, 2, 3, 4,
                                              5, 6, 7, 8,
@@ -162,14 +169,14 @@ fn test_tensor_slicing() {
                                              13, 14, 15, 16]);
     let bt = Tensor::from_array(ctx, &b, TensorMode::Mut);
     let slice: &[&RangeArg] = &[&(1..3), &3];
-    let bt_view = bt.slice(slice);
+    let btv = bt.slice(slice);
 
     let c = Array::from_vec(vec![4, 4], vec![0; 16]);
     let ct = Tensor::from_array(ctx, &c, TensorMode::Mut);
     let slice: &[&RangeArg] = &[&(2..4), &0];
-    let ct_view = ct.slice(slice);
+    let ctv = ct.slice(slice);
 
-    add_slice(ctx, &at_view, &bt_view, &ct_view);
+    add_slice(ctx, &atv, &btv, &ctv);
     assert!(ct.get(ctx).buffer() == &[0, 0, 0, 0,
                                       0, 0, 0, 0,
                                       15, 0, 0, 0,
