@@ -1,72 +1,95 @@
 use std::ops::{Range, RangeFrom, RangeTo, RangeFull};
 
-/*pub struct RangeArg {
+pub struct RangeArg {
     pub start: usize,
-    pub end: usize,
+    pub end: Option<usize>,
 }
 
-impl<T> Deref for T where T: IRangeArg {
-    type Target = RangeArg;
-
-    fn deref(&self) -> &RangeArg {
-        &self.value
+impl RangeArg {
+    pub fn len(&self, len: usize) -> usize {
+        self.end.unwrap_or(len) - self.start
     }
-}*/
+}
+
+impl From<Range<usize>> for RangeArg {
+    #[inline]
+    fn from(r: Range<usize>) -> RangeArg {
+        RangeArg {
+            start: r.start,
+            end: Some(r.end),
+        }
+    }
+}
+
+impl From<RangeFrom<usize>> for RangeArg {
+    #[inline]
+    fn from(r: RangeFrom<usize>) -> RangeArg {
+        RangeArg {
+            start: r.start,
+            end: None,
+        }
+    }
+}
+
+impl From<RangeTo<usize>> for RangeArg {
+    #[inline]
+    fn from(r: RangeTo<usize>) -> RangeArg {
+        RangeArg {
+            start: 0,
+            end: Some(r.end),
+        }
+    }
+}
+
+impl From<RangeFull> for RangeArg {
+    #[inline]
+    fn from(_: RangeFull) -> RangeArg {
+        RangeArg {
+            start: 0,
+            end: None,
+        }
+    }
+}
+
+impl From<usize> for RangeArg {
+    #[inline]
+    fn from(i: usize) -> RangeArg {
+        RangeArg {
+            start: i,
+            end: Some(i+1),
+        }
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-pub trait RangeArg {
-    fn start(&self) -> usize;
-    fn end(&self) -> usize;
-    fn len(&self) -> usize { self.end() - self.start() }
-}
+#[macro_export]
+macro_rules! s(
+    (@as_expr $e:expr) => ($e);
+    (@parse [$($stack:tt)*] $r:expr) => {
+        s![@as_expr &[$($stack)* s!(@step $r)]]
+    };
+    (@parse [$($stack:tt)*] $r:expr, $($t:tt)*) => {
+        s![@parse [$($stack)* s!(@step $r),] $($t)*]
+    };
+    (@step $r:expr) => {
+        <$crate::RangeArg as ::std::convert::From<_>>::from($r)
+    };
+    ($($t:tt)*) => {
+        s![@parse [] $($t)*]
+    };
+);
 
-impl RangeArg for Range<usize> {
-    fn start(&self) -> usize {
-        self.start
-    }
+#[test]
+fn test_slice_macro() {
+    let s: &[RangeArg] = s![1..3, 1];
 
-    fn end(&self) -> usize {
-        self.end
-    }
-}
+    assert!(s[0].start == 1);
+    assert!(s[1].start == 1);
 
-impl RangeArg for RangeFrom<usize> {
-    fn start(&self) -> usize {
-        self.start
-    }
+    assert!(s[0].end == Some(3));
+    assert!(s[1].end == Some(2));
 
-    fn end(&self) -> usize {
-        0
-    }
-}
-
-impl RangeArg for RangeTo<usize> {
-    fn start(&self) -> usize {
-        0
-    }
-
-    fn end(&self) -> usize {
-        self.end
-    }
-}
-
-impl RangeArg for RangeFull {
-    fn start(&self) -> usize {
-        0
-    }
-
-    fn end(&self) -> usize {
-        0
-    }
-}
-
-impl RangeArg for usize {
-    fn start(&self) -> usize {
-        *self
-    }
-
-    fn end(&self) -> usize {
-        *self + 1
-    }
+    assert!(s[0].len(5) == 2);
+    assert!(s[1].len(5) == 1);
 }

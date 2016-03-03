@@ -88,7 +88,7 @@ impl<T: Num> Tensor<T> {
         }
     }
 
-    pub fn slice<'t, 'r>(&'t self, r: &'r [&'r RangeArg]) -> TensorView<'t, 'r, T> {
+    pub fn slice<'t, 'r>(&'t self, r: &'r [RangeArg]) -> TensorView<'t, 'r, T> {
         TensorView {
             shape: self.shape.as_ref(),
             dim_steps: self.dim_steps.as_ref(),
@@ -114,7 +114,7 @@ impl<'t, 'r, T: Num> KernelArg for TensorView<'t, 'r, T> {
 pub struct TensorView<'t, 'r, T: Num+'t> {
     pub shape: &'t [usize],
     pub dim_steps: &'t [usize],
-    ranges: &'r [&'r RangeArg],
+    ranges: &'r [RangeArg],
     buffer: &'t CLBuffer<T>,
     event: &'t RefCell<Option<Event>>,
 }
@@ -133,11 +133,11 @@ impl<'t, 'r, T: Num> TensorView<'t, 'r, T> {
     }
 
     pub fn view_offset(&self, dim: usize) -> usize {
-        self.ranges[dim].start()
+        self.ranges[dim].start
     }
 
     pub fn view_shape(&self, dim: usize) -> usize {
-        self.ranges[dim].len()
+        self.ranges[dim].len(self.shape[dim])
     }
 
     pub fn len(&self) -> usize {
@@ -160,7 +160,7 @@ fn test_tensor_slicing() {
                                              10, 11, 12,
                                              14, 15, 16]);
     let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
-    let slice: &[&RangeArg] = &[&(1..3), &1];
+    let slice: &[RangeArg] = &[RangeArg::from(1..3), RangeArg::from(1)];
     let atv = at.slice(slice);
 
     let b = Array::from_vec(vec![4, 4], vec![1, 2, 3, 4,
@@ -168,12 +168,12 @@ fn test_tensor_slicing() {
                                              9, 10, 11, 12,
                                              13, 14, 15, 16]);
     let bt = Tensor::from_array(ctx, &b, TensorMode::Mut);
-    let slice: &[&RangeArg] = &[&(1..3), &3];
+    let slice: &[RangeArg] = &[RangeArg::from(1..3), RangeArg::from(3)];
     let btv = bt.slice(slice);
 
     let c = Array::from_vec(vec![4, 4], vec![0; 16]);
     let ct = Tensor::from_array(ctx, &c, TensorMode::Mut);
-    let slice: &[&RangeArg] = &[&(2..4), &0];
+    let slice: &[RangeArg] = &[RangeArg::from(2..4), RangeArg::from(0)];
     let ctv = ct.slice(slice);
 
     add_slice(ctx, &atv, &btv, &ctv);
