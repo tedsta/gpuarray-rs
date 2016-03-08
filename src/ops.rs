@@ -14,6 +14,15 @@ pub fn copy_to<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
                                                     None, a.get_event().as_ref().map(|x| &**x)));
 }
 
+pub fn fill<T: Num>(ctx: &Context, a: &Tensor<T>, val: T) {
+    let kernel = ctx.program.create_kernel(format!("array_fill_{}", T::name()).as_str());
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, &val);
+
+    a.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(), None, ()));
+}
+
 pub fn sum<T: Num>(ctx: &Context, a: &Tensor<T>, axis: usize, b: &Tensor<T>) {
     let kernel = ctx.program.create_kernel(format!("array_sum_{}", T::name()).as_str());
 
@@ -261,6 +270,20 @@ pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 use array::Array;
 #[cfg(test)]
 use tensor::TensorMode;
+
+#[test]
+fn tensor_fill() {
+    let ref ctx = Context::new();
+
+    let a: Array<i32> = Array::from_vec(vec![5, 3], vec![0i32; 15]);
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::In);
+
+    fill(ctx, &a_cl, 42);
+    let result = a_cl.get(ctx);
+
+    assert!(result.buffer() == &[42; 15]);
+}
 
 #[test]
 fn tensor_transpose() {

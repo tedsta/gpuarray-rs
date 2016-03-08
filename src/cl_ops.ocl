@@ -47,6 +47,18 @@ __kernel void array_zipmap_i32(__global const int *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+__kernel void array_fill_f32(__global float* a, float val) {
+	uintptr_t i = get_global_id(0);
+	a[i] = val;
+}
+
+__kernel void array_fill_i32(__global int* a, int val) {
+	uintptr_t i = get_global_id(0);
+	a[i] = val;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 __kernel void array_copy_to_f32(__global const float *f,
                                 __global float *t) {
 	uintptr_t i = get_global_id(0);
