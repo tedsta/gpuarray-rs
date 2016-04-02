@@ -1,8 +1,8 @@
-#![feature(cell_extras)]
 #![feature(iter_arith)]
 
 extern crate opencl;
 extern crate libc;
+extern crate ref_filter_map;
 
 pub use context::Context;
 pub use array::Array;

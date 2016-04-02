@@ -4,6 +4,7 @@ use opencl;
 use opencl::hl::KernelArg;
 use opencl::mem::{Buffer, CLBuffer};
 use libc;
+use ref_filter_map::ref_filter_map;
 
 use array::Array;
 use context::Context;
@@ -82,7 +83,7 @@ impl<T: Num> Tensor<T> {
 
     pub fn get_event(&self) -> Option<Ref<Event>> {
         if self.event.borrow().is_some() {
-            Ref::filter_map(self.event.borrow(), |o| o.as_ref())
+            ref_filter_map(self.event.borrow(), |o| o.as_ref())
         } else {
             None
         }
@@ -126,7 +127,7 @@ impl<'t, 'r, T: Num> TensorView<'t, 'r, T> {
 
     pub fn get_event(&self) -> Option<Ref<Event>> {
         if self.event.borrow().is_some() {
-            Ref::filter_map(self.event.borrow(), |o| o.as_ref())
+            ref_filter_map(self.event.borrow(), |o| o.as_ref())
         } else {
             None
         }

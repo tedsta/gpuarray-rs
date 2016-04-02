@@ -8,3 +8,4 @@ git = "https://github.com/tedsta/rust-opencl"
 
 [dependencies]
 libc = "^0.1.8"
+ref_filter_map = "*"
