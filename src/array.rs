@@ -4,7 +4,7 @@ use std::ops::Index;
 use num::Num;
 use helper;
 
-// A 2D array
+// A n-dimensional array
 pub struct Array<T: Num> {
     shape: Vec<usize>,
     dim_steps: Vec<usize>, // the ‘volume’ of 1 unit in each dimension.
