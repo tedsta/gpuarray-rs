@@ -31,7 +31,7 @@ impl<T: Num> Tensor<T> {
             match mode {
                 TensorMode::In => { opencl::cl::CL_MEM_READ_ONLY },
                 TensorMode::Out => { opencl::cl::CL_MEM_WRITE_ONLY },
-                TensorMode::Mut => { opencl::cl::CL_MEM_READ_WRITE},
+                TensorMode::Mut => { opencl::cl::CL_MEM_READ_WRITE },
             };
         let buf_size = shape.iter().fold(1, |a, b| a*b);
         let dim_steps = helper::compute_dim_steps(&shape);
