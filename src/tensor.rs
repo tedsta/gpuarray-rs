@@ -64,9 +64,13 @@ impl<T: Num> Tensor<T> {
         let vec = ctx.queue.get(&self.buffer, self.get_event().as_ref().map(|x| &**x));
         Array::from_vec(self.shape.clone(), vec)
     }
+
+    pub fn read(&self, ctx: &Context, array: &mut Array<T>) {
+        ctx.queue.read(&self.buffer, &mut array.buffer_mut(), self.get_event().as_ref().map(|x| &**x));
+    }
     
     pub fn set(&self, ctx: &Context, array: &Array<T>) {
-        ctx.queue.write(&self.buffer, &&array.buffer()[..], ());
+        ctx.queue.write(&self.buffer, &array.buffer(), ());
     }
 
     pub fn shape(&self) -> &[usize] {

@@ -53,8 +53,12 @@ impl<T: Num> Array<T> {
         &self.shape
     }
 
-    pub fn buffer(&self) -> &Vec<T> {
+    pub fn buffer(&self) -> &[T] {
         &self.buffer
+    }
+
+    pub fn buffer_mut(&mut self) -> &mut [T] {
+        &mut self.buffer
     }
 }
 
