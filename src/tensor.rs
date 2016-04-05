@@ -155,6 +155,23 @@ pub type Event = opencl::hl::Event;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[test]
+fn test_tensor_read() {
+    use ops::add_slice;
+
+    let ref ctx = Context::new();
+
+    let a = Array::from_vec(vec![2, 2], vec![1i32, 2,
+                                             3, 4]);
+    let at = Tensor::from_array(ctx, &a, TensorMode::Out);
+    let mut b = Array::new(vec![2, 2], 0);
+
+    at.read(ctx, &mut b);
+
+    assert!(b.buffer() == &[1, 2,
+                            3, 4]);
+}
+
+#[test]
 fn test_tensor_slicing() {
     use ops::add_slice;
 
