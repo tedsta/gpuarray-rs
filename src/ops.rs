@@ -5,7 +5,7 @@ use num::Num;
 use tensor::{Event, Tensor, TensorView};
 
 pub fn copy_to<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_copy_to_{}", T::name()).as_str());
+    let kernel = ctx.kernels().copy_to::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -15,7 +15,7 @@ pub fn copy_to<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 }
 
 pub fn fill<T: Num>(ctx: &Context, a: &Tensor<T>, val: T) {
-    let kernel = ctx.program.create_kernel(format!("array_fill_{}", T::name()).as_str());
+    let kernel = ctx.kernels().fill::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, &val);
@@ -24,7 +24,7 @@ pub fn fill<T: Num>(ctx: &Context, a: &Tensor<T>, val: T) {
 }
 
 pub fn sum<T: Num>(ctx: &Context, a: &Tensor<T>, axis: usize, b: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_sum_{}", T::name()).as_str());
+    let kernel = ctx.kernels().sum::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
@@ -41,7 +41,7 @@ pub fn sum<T: Num>(ctx: &Context, a: &Tensor<T>, axis: usize, b: &Tensor<T>) {
 }
 
 pub fn add<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_add_{}", T::name()).as_str());
+    let kernel = ctx.kernels().add::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
@@ -57,7 +57,7 @@ pub fn add<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, outpu
 }
 
 pub fn add_slice<T: Num>(ctx: &Context, a: &TensorView<T>, b: &TensorView<T>, output: &TensorView<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_add_slice_{}", T::name()).as_str());
+    let kernel = ctx.kernels().add_slice::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
@@ -80,7 +80,7 @@ pub fn add_slice<T: Num>(ctx: &Context, a: &TensorView<T>, b: &TensorView<T>, ou
 }
 
 pub fn sub<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_sub_{}", T::name()).as_str());
+    let kernel = ctx.kernels().sub::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
@@ -94,7 +94,7 @@ pub fn sub<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<
 }
 
 pub fn multiply<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_multiply_{}", T::name()).as_str());
+    let kernel = ctx.kernels().multiply::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
@@ -110,7 +110,7 @@ pub fn multiply<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, 
 }
 
 pub fn transpose<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_transpose_{}", T::name()).as_str());
+    let kernel = ctx.kernels().transpose::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -122,7 +122,7 @@ pub fn transpose<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 }
 
 pub fn matmul<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_matmul_{}", T::name()).as_str());
+    let kernel = ctx.kernels().matmul::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
@@ -140,7 +140,18 @@ pub fn matmul<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tens
 }
 
 pub fn max<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_max_{}", T::name()).as_str());
+    let kernel = ctx.kernels().max::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, output);
+    kernel.set_arg(2, &threshold);
+
+    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                    None, a.get_event().as_ref().map(|x| &**x)));
+}
+
+pub fn dmax<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
+    let kernel = ctx.kernels().dmax::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -151,19 +162,7 @@ pub fn max<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T
 }
 
 pub fn min<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_min_{}", T::name()).as_str());
-
-    kernel.set_arg(0, a);
-    kernel.set_arg(1, output);
-    kernel.set_arg(2, &threshold);
-
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
-}
-
-
-pub fn dmax<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_dmax_{}", T::name()).as_str());
+    let kernel = ctx.kernels().min::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -174,7 +173,7 @@ pub fn dmax<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<
 }
 
 pub fn dmin<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_dmin_{}", T::name()).as_str());
+    let kernel = ctx.kernels().dmin::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -185,7 +184,7 @@ pub fn dmin<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<
 }
 
 pub fn mse<T: Num>(ctx: &Context, a: &Tensor<T>, train: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_mse_{}", T::name()).as_str());
+    let kernel = ctx.kernels().mse::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, train);
@@ -203,7 +202,7 @@ pub fn mse<T: Num>(ctx: &Context, a: &Tensor<T>, train: &Tensor<T>, output: &Ten
 }
 
 pub fn dmse<T: Num>(ctx: &Context, a: &Tensor<T>, train: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_dmse_{}", T::name()).as_str());
+    let kernel = ctx.kernels().dmse::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, train);
@@ -221,7 +220,7 @@ pub fn dmse<T: Num>(ctx: &Context, a: &Tensor<T>, train: &Tensor<T>, output: &Te
 }
 
 pub fn tanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_tanh_{}", T::name()).as_str());
+    let kernel = ctx.kernels().tanh::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -231,7 +230,7 @@ pub fn tanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 }
 
 pub fn dtanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_dtanh_{}", T::name()).as_str());
+    let kernel = ctx.kernels().dtanh::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -241,7 +240,7 @@ pub fn dtanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 }
 
 pub fn sigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_sigmoid_{}", T::name()).as_str());
+    let kernel = ctx.kernels().sigmoid::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -251,7 +250,7 @@ pub fn sigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 }
 
 pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
-    let kernel = ctx.program.create_kernel(format!("array_dsigmoid_{}", T::name()).as_str());
+    let kernel = ctx.kernels().dsigmoid::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);

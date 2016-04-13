@@ -65,6 +65,12 @@ __kernel void array_copy_to_f32(__global const float *f,
     t[i] = f[i];
 }
 
+__kernel void array_copy_to_i32(__global const int *f,
+                                __global int *t) {
+    uintptr_t i = get_global_id(0);
+    t[i] = f[i];
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Sum
 
