@@ -12,7 +12,7 @@ pub struct Context {
 
 impl Context {
     pub fn new() -> Context {
-        let program_src = include_str!("cl_ops.ocl");
+        let program_src = include_str!("cl/main.cl");
 
         let (device, ctx, queue) = opencl::util::create_compute_context().unwrap();
 
