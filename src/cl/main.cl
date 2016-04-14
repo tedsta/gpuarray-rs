@@ -1,18 +1,3 @@
-// Broadcast a along [2], b along [0]
-/*__kernel void bc_a2_b0(__global const float* a, __global const float* b, __global float* c,
-                       const float* dimsteps_a, const float* dimsteps_b, const float* dimsteps_c) {
-    uintptr_t row = get_global_id(0);
-    uintptr_t col = get_global_id(1);
-    uintptr_t depth = get_global_id(2);
-
-    c[index3(dimsteps_a, row, col, depth)] = a[index3(dimsteps_b, row, col, 1)] +
-                                             b[index3(dimsteps_c, 1, col, depth)];
-}*/
-
-/*uintptr_t index3(__constant uintptr_t* ds, __constant uintptr_t* off, uintptr_t row, uintptr_t col, uintptr_t depth) {
-    return (row+off[0])*ds[0] + (col+off[1])*ds[1] + (depth+off[2]);
-}*/
-
 ulong index2(ulong rows, ulong row, ulong col) {
     return row*rows + col;
 }
@@ -28,21 +13,6 @@ __kernel void array_add_slice_i32(__global int* a, __global int* b, __global int
     ulong bi = index2(b_cols, i+b_off0, j+b_off1);
     ulong ci = index2(c_cols, i+c_off0, j+c_off1);
     c[ci] = a[ai] + b[bi];
-}
-
-__kernel void array_zipmap_i32(__global const int *a,
-                               __global const int *b,
-                               __global int *c,
-                               const ulong wa,
-                               const ulong wb) {
-    ulong i = get_global_id(0);
-    ulong j = get_global_id(1);
-
-    int accum = 0;
-    for (ulong k = 0; k < wa; k++) {
-        accum += a[i*wa + k] * b[k*wb + j];
-    }
-    c[i*wb + j] = accum;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,10 +119,10 @@ __kernel void array_add_i32(__global const int *a,
 }
 
 __kernel void array_add_u64(__global const ulong *a,
-                             __global const ulong *b,
-                             __global ulong *c,
-                             const ulong cols,
-                             const int axis) {
+                            __global const ulong *b,
+                            __global ulong *c,
+                            const ulong cols,
+                            const int axis) {
     ulong i = get_global_id(0);
     ulong j = get_global_id(1);
     if (axis == -1) {
@@ -167,43 +137,43 @@ __kernel void array_add_u64(__global const ulong *a,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 __kernel void array_sub_f32(__global const float *a,
-                             __global const float *b,
-                             __global float *c) {
+                            __global const float *b,
+                            __global float *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
 
 __kernel void array_sub_i8(__global const char *a,
-                             __global const char *b,
-                             __global char *c) {
+                           __global const char *b,
+                           __global char *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
 
 __kernel void array_sub_i16(__global const short *a,
-                             __global const short *b,
-                             __global short *c) {
+                            __global const short *b,
+                            __global short *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
 
 __kernel void array_sub_i32(__global const int *a,
-                             __global const int *b,
-                             __global int *c) {
+                            __global const int *b,
+                            __global int *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
 
 __kernel void array_sub_i64(__global const long *a,
-                             __global const long *b,
-                             __global long *c) {
+                            __global const long *b,
+                            __global long *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
 
 __kernel void array_sub_u8(__global const uchar *a,
-                             __global const uchar *b,
-                             __global uchar *c) {
+                           __global const uchar *b,
+                           __global uchar *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
@@ -216,15 +186,15 @@ __kernel void array_sub_u16(__global const ushort *a,
 }
 
 __kernel void array_sub_u32(__global const uint *a,
-                             __global const uint *b,
-                             __global uint *c) {
+                            __global const uint *b,
+                            __global uint *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
 
 __kernel void array_sub_u64(__global const ulong *a,
-                             __global const ulong *b,
-                             __global ulong *c) {
+                            __global const ulong *b,
+                            __global ulong *c) {
     uintptr_t i = get_global_id(0);
     c[i] = a[i] - b[i];
 }
