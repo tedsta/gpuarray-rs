@@ -1,18 +1,17 @@
 use std::fmt;
 use std::ops::Index;
 
-use num::Num;
 use helper;
 
 // A n-dimensional array
-pub struct Array<T: Num> {
+pub struct Array<T> {
     shape: Vec<usize>,
     dim_steps: Vec<usize>, // the ‘volume’ of 1 unit in each dimension.
     buffer: Vec<T>,
 }
 
-impl<T: Num> Array<T> {
-    pub fn new(shape: Vec<usize>, initial: T) -> Array<T> {
+impl<T> Array<T> {
+    pub fn new(shape: Vec<usize>, initial: T) -> Array<T> where T: Clone {
         let buf_size = shape.iter().fold(1, |a, b| a*b);
         let dim_steps = helper::compute_dim_steps(&shape);
         Array {
@@ -62,7 +61,7 @@ impl<T: Num> Array<T> {
     }
 }
 
-impl<'a, 'b, T: Num, I: IntoIterator<Item=&'b usize>> Index<I> for Array<T> {
+impl<'a, 'b, T, I: IntoIterator<Item=&'b usize>> Index<I> for Array<T> {
     type Output = T;
 
     fn index<'r>(&'r self, index: I) -> &'r T {
@@ -70,13 +69,13 @@ impl<'a, 'b, T: Num, I: IntoIterator<Item=&'b usize>> Index<I> for Array<T> {
     }
 }
 
-impl<T: Num> fmt::Debug for Array<T> {
+impl<T: Clone+fmt::Debug> fmt::Debug for Array<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(f, "[\n"));
         for row in 0..self.shape[0] {
-            try!(write!(f, "[{}", self.get(&[row, 0])));
+            try!(write!(f, "[{:?}", self.get(&[row, 0])));
             for col in 1..self.shape[1] {
-                try!(write!(f, "\t{}", self.get(&[row, col])));
+                try!(write!(f, "\t{:?}", self.get(&[row, col])));
             }
             try!(write!(f, "]\n"));
         }

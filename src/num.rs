@@ -1,9 +1,8 @@
-use std::fmt;
 use std::marker::Reflect;
 
 use opencl::hl::KernelArg;
 
-pub trait Num: KernelArg+Copy+fmt::Display+Reflect+'static { }
+pub trait Num: KernelArg+Copy+Reflect+'static { }
 
 impl Num for f32 { }
 //impl Num for f64 { }

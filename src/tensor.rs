@@ -156,8 +156,6 @@ pub type Event = opencl::hl::Event;
 
 #[test]
 fn test_tensor_read() {
-    use ops::add_slice;
-
     let ref ctx = Context::new();
 
     let a = Array::from_vec(vec![2, 2], vec![1i32, 2,
