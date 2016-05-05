@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 
 use helper;
 
@@ -69,6 +69,12 @@ impl<'a, 'b, T, I: IntoIterator<Item=&'b usize>> Index<I> for Array<T> {
     }
 }
 
+impl<'a, 'b, T, I: IntoIterator<Item=&'b usize>> IndexMut<I> for Array<T> {
+    fn index_mut<'r>(&'r mut self, index: I) -> &'r mut T {
+        self.get_mut(index)
+    }
+}
+
 impl<T: Clone+fmt::Debug> fmt::Debug for Array<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(f, "[\n"));
@@ -119,4 +125,11 @@ fn test_array_indexing() {
     assert!(a[&[1, 2, 1]] == 22);
     assert!(a[&[1, 2, 2]] == 23);
     assert!(a[&[1, 2, 3]] == 24);
+}
+
+#[test]
+fn test_array_indexing_mut() {
+    let mut a = Array::from_vec(vec![3], vec![1, 2, 3]);
+    a[&[1]] = 42;
+    assert!(a[&[1]] == 42);
 }
