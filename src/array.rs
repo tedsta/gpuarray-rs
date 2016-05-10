@@ -30,6 +30,16 @@ impl<T> Array<T> {
         }
     }
 
+    pub fn reshape(&mut self, new_shape: Vec<usize>) {
+        let buf_size = new_shape.iter().fold(1, |a, b| a*b);
+
+        if buf_size != self.buffer.len() {
+            panic!("Failed to reshape Array of shape {:?} to {:?}", self.shape, new_shape);
+        }
+        self.dim_steps = helper::compute_dim_steps(&new_shape);
+        self.shape = new_shape;
+    }
+
     pub fn get<'a, 'b, I: IntoIterator<Item=&'b usize>>(&'a self, coords: I) -> &'a T {
         let index: usize = coords.into_iter().zip(self.dim_steps.iter())
                                  .map(|(c, s)| (*c)*(*s))
@@ -91,6 +101,20 @@ impl<T: Clone+fmt::Debug> fmt::Debug for Array<T> {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#[test]
+fn test_reshape() {
+    let mut a = Array::from_vec(vec![2, 3], vec![1, 2, 3,
+                                                 4, 5, 6]);
+    a.reshape(vec![6]);
+
+    assert!(a[&[0]] == 1);
+    assert!(a[&[1]] == 2);
+    assert!(a[&[2]] == 3);
+    assert!(a[&[3]] == 4);
+    assert!(a[&[4]] == 5);
+    assert!(a[&[5]] == 6);
+}
 
 #[test]
 fn test_array_indexing() {
