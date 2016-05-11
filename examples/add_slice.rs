@@ -1,4 +1,4 @@
-extern crate gpuarray as ga;
+#[macro_use] extern crate gpuarray as ga;
 
 use ga::{Array, Context, RangeArg, Tensor, TensorMode, add_slice};
 
@@ -11,7 +11,8 @@ fn main() {
                                              10, 11, 12,
                                              14, 15, 16]);
     let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
-    let slice: &[RangeArg] = &[RangeArg::from(1..3), RangeArg::from(1)];
+    //let slice: &[RangeArg] = &[RangeArg::from(1..3), RangeArg::from(1)];
+    let slice = s![1..3, 1];
     let atv = at.slice(slice);
 
     let b = Array::from_vec(vec![4, 4], vec![1, 2, 3, 4,
