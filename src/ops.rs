@@ -3,6 +3,7 @@ use std::cell::Ref;
 use context::Context;
 use num::Num;
 use tensor::{Event, Tensor, TensorView};
+use range_arg::RangeArg;
 
 pub fn copy_to<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     let kernel = ctx.kernels().copy_to::<T>();
@@ -56,7 +57,14 @@ pub fn add<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, outpu
     output.set_event(new_event);
 }
 
-pub fn add_slice<T: Num>(ctx: &Context, a: &TensorView<T>, b: &TensorView<T>, output: &TensorView<T>) {
+pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
+                                     a: &TensorView<T, AR>,
+                                     b: &TensorView<T, BR>,
+                                     output: &TensorView<T, CR>)
+                                     where AR: AsRef<[RangeArg]>,
+                                           BR: AsRef<[RangeArg]>,
+                                           CR: AsRef<[RangeArg]>
+{
     let kernel = ctx.kernels().add_slice::<T>();
 
     kernel.set_arg(0, a);

@@ -67,7 +67,7 @@ impl From<usize> for RangeArg {
 macro_rules! s(
     (@as_expr $e:expr) => ($e);
     (@parse [$($stack:tt)*] $r:expr) => {
-        s![@as_expr &[$($stack)* s!(@step $r)]]
+        s![@as_expr [$($stack)* s!(@step $r)]]
     };
     (@parse [$($stack:tt)*] $r:expr, $($t:tt)*) => {
         s![@parse [$($stack)* s!(@step $r),] $($t)*]
@@ -81,8 +81,8 @@ macro_rules! s(
 );
 
 #[test]
-fn test_slice_macro() {
-    let s: &[RangeArg] = s![1..3, 1];
+fn test_s_macro() {
+    let s: [RangeArg; 2] = s![1..3, 1];
 
     assert!(s[0].start == 1);
     assert!(s[1].start == 1);

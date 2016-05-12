@@ -1,5 +1,5 @@
-ulong index2(ulong rows, ulong row, ulong col) {
-    return row*rows + col;
+ulong index2(ulong cols, ulong row, ulong col) {
+    return row*cols + col;
 }
 
 __kernel void array_add_slice_i32(__global int* a, __global int* b, __global int* c,

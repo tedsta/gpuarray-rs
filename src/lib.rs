@@ -16,7 +16,7 @@ pub mod context;
 pub mod kernels;
 pub mod num;
 pub mod ops;
-pub mod range_arg;
+#[macro_use] pub mod range_arg;
 pub mod tensor;
 
 mod helper;
