@@ -57,36 +57,6 @@ pub fn add<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, outpu
     output.set_event(new_event);
 }
 
-pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
-                                     a: &TensorView<T, AR>,
-                                     b: &TensorView<T, BR>,
-                                     output: &TensorView<T, CR>)
-                                     where AR: AsRef<[RangeArg]>,
-                                           BR: AsRef<[RangeArg]>,
-                                           CR: AsRef<[RangeArg]>
-{
-    let kernel = ctx.kernels().add_slice::<T>();
-
-    kernel.set_arg(0, a);
-    kernel.set_arg(1, b);
-    kernel.set_arg(2, output);
-    kernel.set_arg(3, &a.view_offset(0));
-    kernel.set_arg(4, &a.view_offset(1));
-    kernel.set_arg(5, &b.view_offset(0));
-    kernel.set_arg(6, &b.view_offset(1));
-    kernel.set_arg(7, &output.view_offset(0));
-    kernel.set_arg(8, &output.view_offset(1));
-    kernel.set_arg(9, &a.shape[1]);
-    kernel.set_arg(10, &b.shape[1]);
-    kernel.set_arg(11, &output.shape[1]);
-
-    let new_event = {
-        let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
-        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, event_list)
-    };
-    output.set_event(new_event);
-}
-
 pub fn sub<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<T>) {
     let kernel = ctx.kernels().sub::<T>();
 
@@ -265,6 +235,62 @@ pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 
     output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
                                                     None, a.get_event().as_ref().map(|x| &**x)));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
+                                         a: &TensorView<T, AR>,
+                                         b: &TensorView<T, BR>)
+                                         where AR: AsRef<[RangeArg]>,
+                                               BR: AsRef<[RangeArg]>,
+{
+    let kernel = ctx.kernels().copy_to_slice::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, &a.view_offset(0));
+    kernel.set_arg(3, &a.view_offset(1));
+    kernel.set_arg(4, &b.view_offset(0));
+    kernel.set_arg(5, &b.view_offset(1));
+    kernel.set_arg(6, &a.shape[1]);
+    kernel.set_arg(7, &b.shape[1]);
+
+    let new_event = {
+        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
+    };
+    b.set_event(new_event);
+}
+
+pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
+                                     a: &TensorView<T, AR>,
+                                     b: &TensorView<T, BR>,
+                                     output: &TensorView<T, CR>)
+                                     where AR: AsRef<[RangeArg]>,
+                                           BR: AsRef<[RangeArg]>,
+                                           CR: AsRef<[RangeArg]>
+{
+    let kernel = ctx.kernels().add_slice::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, output);
+    kernel.set_arg(3, &a.view_offset(0));
+    kernel.set_arg(4, &a.view_offset(1));
+    kernel.set_arg(5, &b.view_offset(0));
+    kernel.set_arg(6, &b.view_offset(1));
+    kernel.set_arg(7, &output.view_offset(0));
+    kernel.set_arg(8, &output.view_offset(1));
+    kernel.set_arg(9, &a.shape[1]);
+    kernel.set_arg(10, &b.shape[1]);
+    kernel.set_arg(11, &output.shape[1]);
+
+    let new_event = {
+        let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
+        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, event_list)
+    };
+    output.set_event(new_event);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -522,7 +548,6 @@ fn test_add_slice() {
     use array::Array;
     use context::Context;
     use tensor::{Tensor, TensorMode};
-    use ops::add_slice;
 
     let ref ctx = Context::new();
 
@@ -549,4 +574,30 @@ fn test_add_slice() {
                                       0, 0, 0, 0,
                                       15, 0, 0, 0,
                                       23, 0, 0, 0]);
+}
+
+#[test]
+fn test_copy_to_slice() {
+    use array::Array;
+    use context::Context;
+    use tensor::{Tensor, TensorMode};
+
+    let ref ctx = Context::new();
+
+    let a = Array::from_vec(vec![4, 3], vec![2i32, 3, 4,
+                                             6, 7, 8,
+                                             10, 11, 12,
+                                             14, 15, 16]);
+    let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
+    let atv = at.slice(s![1..3, 1]);
+
+    let b = Array::from_vec(vec![4, 4], vec![0; 16]);
+    let bt = Tensor::from_array(ctx, &b, TensorMode::Mut);
+    let btv = bt.slice(s![2..4, 3]);
+
+    copy_to_slice(ctx, &atv, &btv);
+    assert!(bt.get(ctx).buffer() == &[0, 0, 0, 0,
+                                      0, 0, 0, 0,
+                                      0, 0, 0, 7,
+                                      0, 0, 0, 11]);
 }

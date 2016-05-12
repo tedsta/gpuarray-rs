@@ -12,13 +12,13 @@ pub struct Context {
 
 impl Context {
     pub fn new() -> Context {
-        let program_src = include_str!("cl/main.cl");
+        let program_src = format!("{}\n{}", include_str!("cl/main.cl"), include_str!("cl/slice_ops.cl"));
 
         let (device, ctx, queue) = opencl::util::create_compute_context().unwrap();
 
         println!("Using OpenCL Device: {}", device.name());
 
-        let program = ctx.create_program_from_source(program_src);
+        let program = ctx.create_program_from_source(&program_src);
         program.build(&device).ok().expect("Couldn't build program.");
 
         // Create and store all of the kernels

@@ -22,6 +22,7 @@ macro_rules! kernels_hashmap {
 
 pub struct Kernels {
     copy_to: HashMap<TypeId, Kernel>,
+    copy_to_slice: HashMap<TypeId, Kernel>,
     fill: HashMap<TypeId, Kernel>,
     sum: HashMap<TypeId, Kernel>,
     add: HashMap<TypeId, Kernel>,
@@ -46,10 +47,11 @@ impl Kernels {
     pub fn new(program: &Program) -> Kernels {
         Kernels {
             copy_to: kernels_hashmap!(program, "copy_to", f32, i32),
+            copy_to_slice: kernels_hashmap!(program, "copy_to_slice", f32, i32),
             fill: kernels_hashmap!(program, "fill", f32, i32),
             sum: kernels_hashmap!(program, "sum", f32, i32),
             add: kernels_hashmap!(program, "add", f32, i32),
-            add_slice: kernels_hashmap!(program, "add_slice", i32),
+            add_slice: kernels_hashmap!(program, "add_slice", f32, i32),
             sub: kernels_hashmap!(program, "sub", f32),
             multiply: kernels_hashmap!(program, "multiply", f32, i32),
             transpose: kernels_hashmap!(program, "transpose", f32, i32),
@@ -69,6 +71,10 @@ impl Kernels {
 
     pub fn copy_to<T: Num>(&self) -> &Kernel {
         &self.copy_to[&TypeId::of::<T>()]
+    }
+
+    pub fn copy_to_slice<T: Num>(&self) -> &Kernel {
+        &self.copy_to_slice[&TypeId::of::<T>()]
     }
 
     pub fn fill<T: Num>(&self) -> &Kernel {
