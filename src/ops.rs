@@ -516,3 +516,37 @@ fn tensor_dsigmoid() {
                             0.0001233664, 0.000045416677, 0.000016689022,
                             0.000006198845, 0.0000022649713, 0.00000083446434]);
 }
+
+#[test]
+fn test_add_slice() {
+    use array::Array;
+    use context::Context;
+    use tensor::{Tensor, TensorMode};
+    use ops::add_slice;
+
+    let ref ctx = Context::new();
+
+    let a = Array::from_vec(vec![4, 3], vec![2, 3, 4,
+                                             6, 7, 8,
+                                             10, 11, 12,
+                                             14, 15, 16]);
+    let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
+    let atv = at.slice(s![1..3, 1]);
+
+    let b = Array::from_vec(vec![4, 4], vec![1, 2, 3, 4,
+                                             5, 6, 7, 8,
+                                             9, 10, 11, 12,
+                                             13, 14, 15, 16]);
+    let bt = Tensor::from_array(ctx, &b, TensorMode::Mut);
+    let btv = bt.slice(s![1..3, 3]);
+
+    let c = Array::from_vec(vec![4, 4], vec![0; 16]);
+    let ct = Tensor::from_array(ctx, &c, TensorMode::Mut);
+    let ctv = ct.slice(s![2..4, 0]);
+
+    add_slice(ctx, &atv, &btv, &ctv);
+    assert!(ct.get(ctx).buffer() == &[0, 0, 0, 0,
+                                      0, 0, 0, 0,
+                                      15, 0, 0, 0,
+                                      23, 0, 0, 0]);
+}
