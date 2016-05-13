@@ -303,15 +303,20 @@ pub fn multiply_slice<T: Num, AR, BR>(ctx: &Context,
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
-    kernel.set_arg(2, &a.view_offset(0));
-    kernel.set_arg(3, &a.view_offset(1));
-    kernel.set_arg(4, &b.view_offset(0));
-    kernel.set_arg(5, &b.view_offset(1));
-    kernel.set_arg(6, &a.shape[1]);
-    kernel.set_arg(7, &b.shape[1]);
+    kernel.set_arg(2, output);
+    kernel.set_arg(3, &a.view_offset(0));
+    kernel.set_arg(4, &a.view_offset(1));
+    kernel.set_arg(5, &b.view_offset(0));
+    kernel.set_arg(6, &b.view_offset(1));
+    kernel.set_arg(7, &output.view_offset(0));
+    kernel.set_arg(8, &output.view_offset(1));
+    kernel.set_arg(9, &a.shape[1]);
+    kernel.set_arg(10, &b.shape[1]);
+    kernel.set_arg(11, &output.shape[1]);
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
+        let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
+        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, event_list)
     };
     b.set_event(new_event);
 }
