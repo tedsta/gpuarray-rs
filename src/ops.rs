@@ -294,10 +294,10 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
 }
 
 pub fn multiply_slice<T: Num, AR, BR>(ctx: &Context,
-                                     a: &TensorView<T, AR>,
-                                     b: &TensorView<T, BR>)
-                                     where AR: AsRef<[RangeArg]>,
-                                           BR: AsRef<[RangeArg]>,
+                                      a: &TensorView<T, AR>,
+                                      b: &TensorView<T, BR>)
+                                      where AR: AsRef<[RangeArg]>,
+                                            BR: AsRef<[RangeArg]>,
 {
     let kernel = ctx.kernels().multiply_slice::<T>();
 
