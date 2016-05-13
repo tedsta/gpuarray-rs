@@ -22,11 +22,9 @@ macro_rules! kernels_hashmap {
 
 pub struct Kernels {
     copy_to: HashMap<TypeId, Kernel>,
-    copy_to_slice: HashMap<TypeId, Kernel>,
     fill: HashMap<TypeId, Kernel>,
     sum: HashMap<TypeId, Kernel>,
     add: HashMap<TypeId, Kernel>,
-    add_slice: HashMap<TypeId, Kernel>,
     sub: HashMap<TypeId, Kernel>,
     multiply: HashMap<TypeId, Kernel>,
     transpose: HashMap<TypeId, Kernel>,
@@ -41,17 +39,21 @@ pub struct Kernels {
     dtanh: HashMap<TypeId, Kernel>,
     sigmoid: HashMap<TypeId, Kernel>,
     dsigmoid: HashMap<TypeId, Kernel>,
+
+    add_slice: HashMap<TypeId, Kernel>,
+    copy_to_slice: HashMap<TypeId, Kernel>,
+    multiply_slice: HashMap<TypeId, Kernel>,
+    sigmoid_slice: HashMap<TypeId, Kernel>,
+    tanh_slice: HashMap<TypeId, Kernel>,
 }
 
 impl Kernels {
     pub fn new(program: &Program) -> Kernels {
         Kernels {
             copy_to: kernels_hashmap!(program, "copy_to", f32, i32),
-            copy_to_slice: kernels_hashmap!(program, "copy_to_slice", f32, i32),
             fill: kernels_hashmap!(program, "fill", f32, i32),
             sum: kernels_hashmap!(program, "sum", f32, i32),
             add: kernels_hashmap!(program, "add", f32, i32),
-            add_slice: kernels_hashmap!(program, "add_slice", f32, i32),
             sub: kernels_hashmap!(program, "sub", f32),
             multiply: kernels_hashmap!(program, "multiply", f32, i32),
             transpose: kernels_hashmap!(program, "transpose", f32, i32),
@@ -66,15 +68,17 @@ impl Kernels {
             dtanh: kernels_hashmap!(program, "dtanh", f32),
             sigmoid: kernels_hashmap!(program, "sigmoid", f32),
             dsigmoid: kernels_hashmap!(program, "dsigmoid", f32),
+
+            add_slice: kernels_hashmap!(program, "add_slice", f32, i32),
+            copy_to_slice: kernels_hashmap!(program, "copy_to_slice", f32, i32),
+            multiply_slice: kernels_hashmap!(program, "multiply_slice", f32, i32),
+            sigmoid_slice: kernels_hashmap!(program, "sigmoid_slice", f32),
+            tanh_slice: kernels_hashmap!(program, "tanh_slice", f32),
         }
     }
 
     pub fn copy_to<T: Num>(&self) -> &Kernel {
         &self.copy_to[&TypeId::of::<T>()]
-    }
-
-    pub fn copy_to_slice<T: Num>(&self) -> &Kernel {
-        &self.copy_to_slice[&TypeId::of::<T>()]
     }
 
     pub fn fill<T: Num>(&self) -> &Kernel {
@@ -87,10 +91,6 @@ impl Kernels {
     
     pub fn add<T: Num>(&self) -> &Kernel {
         &self.add[&TypeId::of::<T>()]
-    }
-
-    pub fn add_slice<T: Num>(&self) -> &Kernel {
-        &self.add_slice[&TypeId::of::<T>()]
     }
 
     pub fn sub<T: Num>(&self) -> &Kernel {
@@ -147,5 +147,25 @@ impl Kernels {
 
     pub fn dsigmoid<T: Num>(&self) -> &Kernel {
         &self.dsigmoid[&TypeId::of::<T>()]
+    }
+
+    pub fn copy_to_slice<T: Num>(&self) -> &Kernel {
+        &self.copy_to_slice[&TypeId::of::<T>()]
+    }
+
+    pub fn add_slice<T: Num>(&self) -> &Kernel {
+        &self.add_slice[&TypeId::of::<T>()]
+    }
+
+    pub fn multiply_slice<T: Num>(&self) -> &Kernel {
+        &self.multiply_slice[&TypeId::of::<T>()]
+    }
+
+    pub fn sigmoid_slice<T: Num>(&self) -> &Kernel {
+        &self.sigmoid_slice[&TypeId::of::<T>()]
+    }
+
+    pub fn tanh_slice<T: Num>(&self) -> &Kernel {
+        &self.tanh_slice[&TypeId::of::<T>()]
     }
 }

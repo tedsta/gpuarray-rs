@@ -241,10 +241,10 @@ pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 
 
 pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
-                                         a: &TensorView<T, AR>,
-                                         b: &TensorView<T, BR>)
-                                         where AR: AsRef<[RangeArg]>,
-                                               BR: AsRef<[RangeArg]>,
+                                     a: &TensorView<T, AR>,
+                                     b: &TensorView<T, BR>)
+                                     where AR: AsRef<[RangeArg]>,
+                                           BR: AsRef<[RangeArg]>,
 {
     let kernel = ctx.kernels().copy_to_slice::<T>();
 
@@ -291,6 +291,75 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
         ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, event_list)
     };
     output.set_event(new_event);
+}
+
+pub fn multiply_slice<T: Num, AR, BR>(ctx: &Context,
+                                     a: &TensorView<T, AR>,
+                                     b: &TensorView<T, BR>)
+                                     where AR: AsRef<[RangeArg]>,
+                                           BR: AsRef<[RangeArg]>,
+{
+    let kernel = ctx.kernels().multiply_slice::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, &a.view_offset(0));
+    kernel.set_arg(3, &a.view_offset(1));
+    kernel.set_arg(4, &b.view_offset(0));
+    kernel.set_arg(5, &b.view_offset(1));
+    kernel.set_arg(6, &a.shape[1]);
+    kernel.set_arg(7, &b.shape[1]);
+
+    let new_event = {
+        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
+    };
+    b.set_event(new_event);
+}
+
+pub fn sigmoid_slice<T: Num, AR, BR>(ctx: &Context,
+                                     a: &TensorView<T, AR>,
+                                     b: &TensorView<T, BR>)
+                                     where AR: AsRef<[RangeArg]>,
+                                           BR: AsRef<[RangeArg]>,
+{
+    let kernel = ctx.kernels().sigmoid_slice::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, &a.view_offset(0));
+    kernel.set_arg(3, &a.view_offset(1));
+    kernel.set_arg(4, &b.view_offset(0));
+    kernel.set_arg(5, &b.view_offset(1));
+    kernel.set_arg(6, &a.shape[1]);
+    kernel.set_arg(7, &b.shape[1]);
+
+    let new_event = {
+        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
+    };
+    b.set_event(new_event);
+}
+
+pub fn tanh_slice<T: Num, AR, BR>(ctx: &Context,
+                                  a: &TensorView<T, AR>,
+                                  b: &TensorView<T, BR>)
+                                  where AR: AsRef<[RangeArg]>,
+                                        BR: AsRef<[RangeArg]>,
+{
+    let kernel = ctx.kernels().tanh_slice::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, &a.view_offset(0));
+    kernel.set_arg(3, &a.view_offset(1));
+    kernel.set_arg(4, &b.view_offset(0));
+    kernel.set_arg(5, &b.view_offset(1));
+    kernel.set_arg(6, &a.shape[1]);
+    kernel.set_arg(7, &b.shape[1]);
+
+    let new_event = {
+        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
+    };
+    b.set_event(new_event);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
