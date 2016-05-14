@@ -295,7 +295,7 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
 
 pub fn multiply_slice<T: Num, AR, BR, CR>(ctx: &Context,
                                       a: &TensorView<T, AR>,
-                                      b: &TensorView<T, AR>,
+                                      b: &TensorView<T, BR>,
                                       out: &TensorView<T, CR>)
                                       where AR: AsRef<[RangeArg]>,
                                             BR: AsRef<[RangeArg]>,
