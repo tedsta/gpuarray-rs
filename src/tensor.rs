@@ -138,11 +138,11 @@ impl<'t, T: Num, R: AsRef<[RangeArg]>> TensorView<'t, T, R> {
     }
 
     pub fn view_offset(&self, dim: usize) -> usize {
-        self.ranges.as_ref()[dim].start
+        self.ranges.as_ref().get(dim).map(|r| r.start).unwrap_or(0)
     }
 
     pub fn view_shape(&self, dim: usize) -> usize {
-        self.ranges.as_ref()[dim].len(self.shape[dim])
+        self.ranges.as_ref().get(dim).map(|r| r.len(self.shape[dim])).unwrap_or(self.shape[dim])
     }
 
     pub fn len(&self) -> usize {
@@ -167,4 +167,17 @@ fn test_tensor_read() {
 
     assert!(b.buffer() == &[1, 2,
                             3, 4]);
+}
+
+#[test]
+fn test_tensor_incomplete_slice() {
+    let ref ctx = Context::new();
+    let t = Tensor::<f32>::new(ctx, vec![4, 5, 6], TensorMode::Out);
+    let t_slice = t.slice(s![1..3]);
+    assert!(t_slice.view_offset(0) == 1);
+    assert!(t_slice.view_offset(1) == 0);
+    assert!(t_slice.view_offset(2) == 0);
+    assert!(t_slice.view_shape(0) == 2);
+    assert!(t_slice.view_shape(1) == 5);
+    assert!(t_slice.view_shape(2) == 6);
 }
