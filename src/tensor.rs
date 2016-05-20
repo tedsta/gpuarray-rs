@@ -77,6 +77,10 @@ impl<T: Num> Tensor<T> {
         &self.shape
     }
 
+    pub fn dim_steps(&self) -> &[usize] {
+        &self.dim_steps
+    }
+
     pub fn len(&self) -> usize {
         self.buffer.len()
     }

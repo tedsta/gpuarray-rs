@@ -59,7 +59,7 @@ impl<T> Array<T> {
     }
 
     pub fn dim_steps(&self) -> &[usize] {
-        &self.shape
+        &self.dim_steps
     }
 
     pub fn buffer(&self) -> &[T] {

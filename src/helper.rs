@@ -7,3 +7,8 @@ pub fn compute_dim_steps(shape: &[usize]) -> Vec<usize> {
     }
     dim_steps
 }
+
+#[test]
+fn test_compute_dim_steps() {
+    assert!(compute_dim_steps(&[2, 3, 4]) == &[12, 4, 1]);
+}

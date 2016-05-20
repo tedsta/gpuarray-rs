@@ -263,6 +263,34 @@ pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
     b.set_event(new_event);
 }
 
+fn dim_steps_as_ulong4(dim_steps: &[usize]) -> [u64; 4] {
+    let mut array = [0u64; 4];
+    let array_len = array.len();
+
+    for i in 0..dim_steps.len() {
+        array[array_len-1-i] = dim_steps[dim_steps.len()-1-i] as u64;
+    }
+    for i in dim_steps.len()..array_len {
+        array[array_len-1-i] = dim_steps[0] as u64;
+    }
+
+    array
+}
+
+fn tensor_view_offsets_as_ulong4<T: Num, R: AsRef<[RangeArg]>>(t: &TensorView<T, R>) -> [u64; 4] {
+    let mut array = [0u64; 4];
+    let array_len = array.len();
+
+    for i in 0..t.shape.len() {
+        array[array_len-1-i] = t.view_offset(t.shape.len()-1-i) as u64;
+    }
+    for i in t.shape.len()..array_len {
+        array[array_len-1-i] = 0;
+    }
+
+    array
+}
+
 pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
                                      a: &TensorView<T, AR>,
                                      b: &TensorView<T, BR>,
@@ -273,18 +301,23 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
 {
     let kernel = ctx.kernels().add_slice::<T>();
 
+    let a_dim_steps = dim_steps_as_ulong4(a.dim_steps);
+    let b_dim_steps = dim_steps_as_ulong4(b.dim_steps);
+    let output_dim_steps = dim_steps_as_ulong4(output.dim_steps);
+
+    let a_offsets = tensor_view_offsets_as_ulong4(a);
+    let b_offsets = tensor_view_offsets_as_ulong4(b);
+    let output_offsets = tensor_view_offsets_as_ulong4(output);
+
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
     kernel.set_arg(2, output);
-    kernel.set_arg(3, &a.view_offset(0));
-    kernel.set_arg(4, &a.view_offset(1));
-    kernel.set_arg(5, &b.view_offset(0));
-    kernel.set_arg(6, &b.view_offset(1));
-    kernel.set_arg(7, &output.view_offset(0));
-    kernel.set_arg(8, &output.view_offset(1));
-    kernel.set_arg(9, &a.shape[1]);
-    kernel.set_arg(10, &b.shape[1]);
-    kernel.set_arg(11, &output.shape[1]);
+    kernel.set_arg(3, &a_dim_steps);
+    kernel.set_arg(4, &a_offsets);
+    kernel.set_arg(5, &b_dim_steps);
+    kernel.set_arg(6, &b_offsets);
+    kernel.set_arg(7, &output_dim_steps);
+    kernel.set_arg(8, &output_offsets);
 
     let new_event = {
         let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
