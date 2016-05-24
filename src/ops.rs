@@ -318,10 +318,15 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
     kernel.set_arg(6, &b_offsets);
     kernel.set_arg(7, &output_dim_steps);
     kernel.set_arg(8, &output_offsets);
+    
+    let mut work_dim = [1; 3];
+    for i in 0..a.shape.len() {
+        work_dim[2-i] = a.view_shape(a.shape.len()-1-i);
+    }
 
     let new_event = {
         let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
-        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, event_list)
+        ctx.queue.enqueue_async_kernel(&kernel, work_dim, None, event_list)
     };
     output.set_event(new_event);
 }
@@ -660,12 +665,17 @@ fn test_add_slice() {
 
     let ref ctx = Context::new();
 
-    let a = Array::from_vec(vec![4, 3], vec![2, 3, 4,
-                                             6, 7, 8,
-                                             10, 11, 12,
-                                             14, 15, 16]);
+    let a = Array::from_vec(vec![2, 4, 3], vec![2, 3, 4,
+                                                6, 7, 8,
+                                                10, 11, 12,
+                                                14, 15, 16,
+                                                
+                                                17, 18, 19,
+                                                20, 21, 22,
+                                                23, 24, 25,
+                                                26, 27, 28]);
     let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
-    let atv = at.slice(s![1..3, 1]);
+    let atv = at.slice(s![0, 1..3, 1]);
 
     let b = Array::from_vec(vec![4, 4], vec![1, 2, 3, 4,
                                              5, 6, 7, 8,
@@ -678,7 +688,8 @@ fn test_add_slice() {
     let ct = Tensor::from_array(ctx, &c, TensorMode::Mut);
     let ctv = ct.slice(s![2..4, 0]);
 
-    add_slice(ctx, &atv, &btv, &ctv);
+    add_slice(ctx, &btv, &atv, &ctv);
+    println!("{:?}", ct.get(ctx));
     assert!(ct.get(ctx).buffer() == &[0, 0, 0, 0,
                                       0, 0, 0, 0,
                                       15, 0, 0, 0,

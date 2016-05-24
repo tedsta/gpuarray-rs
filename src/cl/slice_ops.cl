@@ -20,15 +20,24 @@ __kernel void array_add_slice_i32(__global int* a, __global int* b, __global int
                                   ulong4 c_dim_steps, ulong4 c_off) {
     ulong i = get_global_id(0);
     ulong j = get_global_id(1);
-    a_off[2] += i;
-    a_off[3] += j;
-    b_off[2] += i;
-    b_off[3] += j;
-    c_off[2] += i;
-    c_off[3] += j;
+    ulong k = get_global_id(2);
+
+    a_off[1] += i;
+    a_off[2] += j;
+    a_off[3] += k;
+
+    b_off[1] += i;
+    b_off[2] += j;
+    b_off[3] += k;
+
+    c_off[1] += i;
+    c_off[2] += j;
+    c_off[3] += k;
+
     ulong ai = index4(a_dim_steps, a_off);
     ulong bi = index4(b_dim_steps, b_off);
     ulong ci = index4(c_dim_steps, c_off);
+
     c[ci] = a[ai] + b[bi];
 }
 
