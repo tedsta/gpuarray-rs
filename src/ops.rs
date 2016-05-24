@@ -275,17 +275,26 @@ pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
 {
     let kernel = ctx.kernels().copy_to_slice::<T>();
 
+    let a_dim_steps = dim_steps_as_ulong4(a.dim_steps);
+    let b_dim_steps = dim_steps_as_ulong4(b.dim_steps);
+
+    let a_offsets = tensor_view_offsets_as_ulong4(a);
+    let b_offsets = tensor_view_offsets_as_ulong4(b);
+
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
-    kernel.set_arg(2, &a.view_offset(0));
-    kernel.set_arg(3, &a.view_offset(1));
-    kernel.set_arg(4, &b.view_offset(0));
-    kernel.set_arg(5, &b.view_offset(1));
-    kernel.set_arg(6, &a.shape[1]);
-    kernel.set_arg(7, &b.shape[1]);
+    kernel.set_arg(2, &a_dim_steps);
+    kernel.set_arg(3, &a_offsets);
+    kernel.set_arg(4, &b_dim_steps);
+    kernel.set_arg(5, &b_offsets);
+    
+    let mut work_dim = [1; 3];
+    for i in 0..a.shape.len() {
+        work_dim[2-i] = a.view_shape(a.shape.len()-1-i);
+    }
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
+        ctx.queue.enqueue_async_kernel(&kernel, work_dim, None, a.get_event().as_ref().map(|x| &**x))
     };
     b.set_event(new_event);
 }
