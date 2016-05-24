@@ -239,30 +239,6 @@ pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
-                                     a: &TensorView<T, AR>,
-                                     b: &TensorView<T, BR>)
-                                     where AR: AsRef<[RangeArg]>,
-                                           BR: AsRef<[RangeArg]>,
-{
-    let kernel = ctx.kernels().copy_to_slice::<T>();
-
-    kernel.set_arg(0, a);
-    kernel.set_arg(1, b);
-    kernel.set_arg(2, &a.view_offset(0));
-    kernel.set_arg(3, &a.view_offset(1));
-    kernel.set_arg(4, &b.view_offset(0));
-    kernel.set_arg(5, &b.view_offset(1));
-    kernel.set_arg(6, &a.shape[1]);
-    kernel.set_arg(7, &b.shape[1]);
-
-    let new_event = {
-        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
-    };
-    b.set_event(new_event);
-}
-
 fn dim_steps_as_ulong4(dim_steps: &[usize]) -> [u64; 4] {
     let mut array = [0u64; 4];
     let array_len = array.len();
@@ -291,10 +267,33 @@ fn tensor_view_offsets_as_ulong4<T: Num, R: AsRef<[RangeArg]>>(t: &TensorView<T,
     array
 }
 
+pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
+                                     a: &TensorView<T, AR>,
+                                     b: &TensorView<T, BR>)
+                                     where AR: AsRef<[RangeArg]>,
+                                           BR: AsRef<[RangeArg]>,
+{
+    let kernel = ctx.kernels().copy_to_slice::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, &a.view_offset(0));
+    kernel.set_arg(3, &a.view_offset(1));
+    kernel.set_arg(4, &b.view_offset(0));
+    kernel.set_arg(5, &b.view_offset(1));
+    kernel.set_arg(6, &a.shape[1]);
+    kernel.set_arg(7, &b.shape[1]);
+
+    let new_event = {
+        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &**x))
+    };
+    b.set_event(new_event);
+}
+
 pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
                                      a: &TensorView<T, AR>,
                                      b: &TensorView<T, BR>,
-                                     output: &TensorView<T, CR>)
+                                     out: &TensorView<T, CR>)
                                      where AR: AsRef<[RangeArg]>,
                                            BR: AsRef<[RangeArg]>,
                                            CR: AsRef<[RangeArg]>
@@ -303,21 +302,21 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
 
     let a_dim_steps = dim_steps_as_ulong4(a.dim_steps);
     let b_dim_steps = dim_steps_as_ulong4(b.dim_steps);
-    let output_dim_steps = dim_steps_as_ulong4(output.dim_steps);
+    let out_dim_steps = dim_steps_as_ulong4(out.dim_steps);
 
     let a_offsets = tensor_view_offsets_as_ulong4(a);
     let b_offsets = tensor_view_offsets_as_ulong4(b);
-    let output_offsets = tensor_view_offsets_as_ulong4(output);
+    let out_offsets = tensor_view_offsets_as_ulong4(out);
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
-    kernel.set_arg(2, output);
+    kernel.set_arg(2, out);
     kernel.set_arg(3, &a_dim_steps);
     kernel.set_arg(4, &a_offsets);
     kernel.set_arg(5, &b_dim_steps);
     kernel.set_arg(6, &b_offsets);
-    kernel.set_arg(7, &output_dim_steps);
-    kernel.set_arg(8, &output_offsets);
+    kernel.set_arg(7, &out_dim_steps);
+    kernel.set_arg(8, &out_offsets);
     
     let mut work_dim = [1; 3];
     for i in 0..a.shape.len() {
@@ -328,7 +327,7 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
         let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&kernel, work_dim, None, event_list)
     };
-    output.set_event(new_event);
+    out.set_event(new_event);
 }
 
 pub fn multiply_slice<T: Num, AR, BR, CR>(ctx: &Context,
@@ -341,24 +340,34 @@ pub fn multiply_slice<T: Num, AR, BR, CR>(ctx: &Context,
 {
     let kernel = ctx.kernels().multiply_slice::<T>();
 
+    let a_dim_steps = dim_steps_as_ulong4(a.dim_steps);
+    let b_dim_steps = dim_steps_as_ulong4(b.dim_steps);
+    let out_dim_steps = dim_steps_as_ulong4(out.dim_steps);
+
+    let a_offsets = tensor_view_offsets_as_ulong4(a);
+    let b_offsets = tensor_view_offsets_as_ulong4(b);
+    let out_offsets = tensor_view_offsets_as_ulong4(out);
+
     kernel.set_arg(0, a);
     kernel.set_arg(1, b);
     kernel.set_arg(2, out);
-    kernel.set_arg(3, &a.view_offset(0));
-    kernel.set_arg(4, &a.view_offset(1));
-    kernel.set_arg(5, &b.view_offset(0));
-    kernel.set_arg(6, &b.view_offset(1));
-    kernel.set_arg(7, &out.view_offset(0));
-    kernel.set_arg(8, &out.view_offset(1));
-    kernel.set_arg(9, &a.shape[1]);
-    kernel.set_arg(10, &b.shape[1]);
-    kernel.set_arg(11, &out.shape[1]);
+    kernel.set_arg(3, &a_dim_steps);
+    kernel.set_arg(4, &a_offsets);
+    kernel.set_arg(5, &b_dim_steps);
+    kernel.set_arg(6, &b_offsets);
+    kernel.set_arg(7, &out_dim_steps);
+    kernel.set_arg(8, &out_offsets);
+    
+    let mut work_dim = [1; 3];
+    for i in 0..a.shape.len() {
+        work_dim[2-i] = a.view_shape(a.shape.len()-1-i);
+    }
 
     let new_event = {
         let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
-        ctx.queue.enqueue_async_kernel(&kernel, (a.view_shape(0), a.view_shape(1)), None, event_list)
+        ctx.queue.enqueue_async_kernel(&kernel, work_dim, None, event_list)
     };
-    b.set_event(new_event);
+    out.set_event(new_event);
 }
 
 pub fn sigmoid_slice<T: Num, AR, BR>(ctx: &Context,
@@ -694,6 +703,45 @@ fn test_add_slice() {
                                       0, 0, 0, 0,
                                       15, 0, 0, 0,
                                       23, 0, 0, 0]);
+}
+
+#[test]
+fn test_multiply_slice() {
+    use array::Array;
+    use context::Context;
+    use tensor::{Tensor, TensorMode};
+
+    let ref ctx = Context::new();
+
+    let a = Array::from_vec(vec![2, 4, 3], vec![2, 3, 4,
+                                                6, 7, 8,
+                                                10, 11, 12,
+                                                14, 15, 16,
+                                                
+                                                17, 18, 19,
+                                                20, 21, 22,
+                                                23, 24, 25,
+                                                26, 27, 28]);
+    let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
+    let atv = at.slice(s![0, 1..3, 1]);
+
+    let b = Array::from_vec(vec![4, 4], vec![1, 2, 3, 4,
+                                             5, 6, 7, 8,
+                                             9, 10, 11, 12,
+                                             13, 14, 15, 16]);
+    let bt = Tensor::from_array(ctx, &b, TensorMode::Mut);
+    let btv = bt.slice(s![1..3, 3]);
+
+    let c = Array::from_vec(vec![4, 4], vec![0; 16]);
+    let ct = Tensor::from_array(ctx, &c, TensorMode::Mut);
+    let ctv = ct.slice(s![2..4, 0]);
+
+    multiply_slice(ctx, &btv, &atv, &ctv);
+    println!("{:?}", ct.get(ctx));
+    assert!(ct.get(ctx).buffer() == &[0, 0, 0, 0,
+                                      0, 0, 0, 0,
+                                      56, 0, 0, 0,
+                                      132, 0, 0, 0]);
 }
 
 #[test]
