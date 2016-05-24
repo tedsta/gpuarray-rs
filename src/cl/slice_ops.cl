@@ -170,6 +170,38 @@ __kernel void array_copy_to_slice_f32(__global float* a, __global float* b,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+__kernel void array_fill_slice_i32(__global int* a, int val,
+                                   ulong4 a_dim_steps, ulong4 a_off) {
+    ulong i = get_global_id(0);
+    ulong j = get_global_id(1);
+    ulong k = get_global_id(2);
+
+    a_off[1] += i;
+    a_off[2] += j;
+    a_off[3] += k;
+
+    ulong ai = index4(a_dim_steps, a_off);
+
+    a[ai] = val;
+}
+
+__kernel void array_fill_slice_f32(__global float* a, float val,
+                                   ulong4 a_dim_steps, ulong4 a_off) {
+    ulong i = get_global_id(0);
+    ulong j = get_global_id(1);
+    ulong k = get_global_id(2);
+
+    a_off[1] += i;
+    a_off[2] += j;
+    a_off[3] += k;
+
+    ulong ai = index4(a_dim_steps, a_off);
+
+    a[ai] = val;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 __kernel void array_sigmoid_slice_f32(__global float* a, __global float* b,
                                       ulong a_off0, ulong a_off1,
                                       ulong b_off0, ulong b_off1,

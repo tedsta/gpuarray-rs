@@ -267,6 +267,28 @@ fn tensor_view_offsets_as_ulong4<T: Num, R: AsRef<[RangeArg]>>(t: &TensorView<T,
     array
 }
 
+pub fn fill_slice<T: Num, AR: AsRef<[RangeArg]>>(ctx: &Context, a: &TensorView<T, AR>, val: T) {
+    let kernel = ctx.kernels().fill_slice::<T>();
+
+    let a_dim_steps = dim_steps_as_ulong4(a.dim_steps);
+    let a_offsets = tensor_view_offsets_as_ulong4(a);
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, &val);
+    kernel.set_arg(2, &a_dim_steps);
+    kernel.set_arg(3, &a_offsets);
+    
+    let mut work_dim = [1; 3];
+    for i in 0..a.shape.len() {
+        work_dim[2-i] = a.view_shape(a.shape.len()-1-i);
+    }
+
+    let new_event = {
+        ctx.queue.enqueue_async_kernel(&kernel, work_dim, None, a.get_event().as_ref().map(|x| &**x))
+    };
+    a.set_event(new_event);
+}
+
 pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
                                      a: &TensorView<T, AR>,
                                      b: &TensorView<T, BR>)
@@ -751,6 +773,25 @@ fn test_multiply_slice() {
                                       0, 0, 0, 0,
                                       56, 0, 0, 0,
                                       132, 0, 0, 0]);
+}
+
+#[test]
+fn test_fill_slice() {
+    use array::Array;
+    use context::Context;
+    use tensor::{Tensor, TensorMode};
+
+    let ref ctx = Context::new();
+
+    let a = Array::from_vec(vec![4, 3], vec![0i32; 12]);
+    let at = Tensor::from_array(ctx, &a, TensorMode::Mut);
+    let atv = at.slice(s![1..3, 1]);
+
+    fill_slice(ctx, &atv, 42);
+    assert!(at.get(ctx).buffer() == &[0, 0, 0,
+                                      0, 42, 0,
+                                      0, 42, 0,
+                                      0, 0, 0]);
 }
 
 #[test]
