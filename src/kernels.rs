@@ -45,7 +45,9 @@ pub struct Kernels {
     fill_slice: HashMap<TypeId, Kernel>,
     multiply_slice: HashMap<TypeId, Kernel>,
     sigmoid_slice: HashMap<TypeId, Kernel>,
+    dsigmoid_slice: HashMap<TypeId, Kernel>,
     tanh_slice: HashMap<TypeId, Kernel>,
+    dtanh_slice: HashMap<TypeId, Kernel>,
 }
 
 impl Kernels {
@@ -75,7 +77,9 @@ impl Kernels {
             fill_slice: kernels_hashmap!(program, "fill_slice", f32, i32),
             multiply_slice: kernels_hashmap!(program, "multiply_slice", f32, i32),
             sigmoid_slice: kernels_hashmap!(program, "sigmoid_slice", f32),
+            dsigmoid_slice: kernels_hashmap!(program, "dsigmoid_slice", f32),
             tanh_slice: kernels_hashmap!(program, "tanh_slice", f32),
+            dtanh_slice: kernels_hashmap!(program, "dtanh_slice", f32),
         }
     }
 
@@ -171,7 +175,15 @@ impl Kernels {
         &self.sigmoid_slice[&TypeId::of::<T>()]
     }
 
+    pub fn dsigmoid_slice<T: Num>(&self) -> &Kernel {
+        &self.dsigmoid_slice[&TypeId::of::<T>()]
+    }
+
     pub fn tanh_slice<T: Num>(&self) -> &Kernel {
         &self.tanh_slice[&TypeId::of::<T>()]
+    }
+
+    pub fn dtanh_slice<T: Num>(&self) -> &Kernel {
+        &self.dtanh_slice[&TypeId::of::<T>()]
     }
 }

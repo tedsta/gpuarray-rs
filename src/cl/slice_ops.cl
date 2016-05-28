@@ -213,6 +213,19 @@ __kernel void array_sigmoid_slice_f32(__global float* a, __global float* b,
     b[bi] = sigmoid(a[ai]);
 }
 
+__kernel void array_dsigmoid_slice_f32(__global float* a, __global float* b,
+                                       ulong a_off0, ulong a_off1,
+                                       ulong b_off0, ulong b_off1,
+                                       ulong a_cols, ulong b_cols) {
+    ulong i = get_global_id(0);
+    ulong j = get_global_id(1);
+    ulong ai = index2(a_cols, i+a_off0, j+a_off1);
+    ulong bi = index2(b_cols, i+b_off0, j+b_off1);
+    // dsigmoid(x) = sigmoid(x)*(1 - sigmoid(x))
+    b[bi] = sigmoid(a[ai]);
+    b[bi] = b[bi]*(1.0 - b[bi]);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 __kernel void array_tanh_slice_f32(__global float* a, __global float* b,
@@ -224,4 +237,17 @@ __kernel void array_tanh_slice_f32(__global float* a, __global float* b,
     ulong ai = index2(a_cols, i+a_off0, j+a_off1);
     ulong bi = index2(b_cols, i+b_off0, j+b_off1);
     b[bi] = tanh(a[ai]);
+}
+
+__kernel void array_dtanh_slice_f32(__global float* a, __global float* b,
+                                    ulong a_off0, ulong a_off1,
+                                    ulong b_off0, ulong b_off1,
+                                    ulong a_cols, ulong b_cols) {
+    ulong i = get_global_id(0);
+    ulong j = get_global_id(1);
+    ulong ai = index2(a_cols, i+a_off0, j+a_off1);
+    ulong bi = index2(b_cols, i+b_off0, j+b_off1);
+    // dtanh(x) = 1 - tanh(x)^2
+    b[bi] = tanh(a[ai]);
+    b[bi] = 1.0 - b[bi]*b[bi];
 }
