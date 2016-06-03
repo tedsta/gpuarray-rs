@@ -237,6 +237,26 @@ pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
                                                     None, a.get_event().as_ref().map(|x| &**x)));
 }
 
+pub fn log<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
+    let kernel = ctx.kernels().log::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, output);
+
+    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                    None, a.get_event().as_ref().map(|x| &**x)));
+}
+
+pub fn exp<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
+    let kernel = ctx.kernels().exp::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, output);
+
+    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                    None, a.get_event().as_ref().map(|x| &**x)));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 fn dim_steps_as_ulong4(dim_steps: &[usize]) -> [u64; 4] {

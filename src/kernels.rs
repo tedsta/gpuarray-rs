@@ -39,6 +39,8 @@ pub struct Kernels {
     dtanh: HashMap<TypeId, Kernel>,
     sigmoid: HashMap<TypeId, Kernel>,
     dsigmoid: HashMap<TypeId, Kernel>,
+    log: HashMap<TypeId, Kernel>,
+    exp: HashMap<TypeId, Kernel>,
 
     add_slice: HashMap<TypeId, Kernel>,
     copy_to_slice: HashMap<TypeId, Kernel>,
@@ -71,6 +73,8 @@ impl Kernels {
             dtanh: kernels_hashmap!(program, "dtanh", f32),
             sigmoid: kernels_hashmap!(program, "sigmoid", f32),
             dsigmoid: kernels_hashmap!(program, "dsigmoid", f32),
+            log: kernels_hashmap!(program, "log", f32),
+            exp: kernels_hashmap!(program, "exp", f32),
 
             add_slice: kernels_hashmap!(program, "add_slice", f32, i32),
             copy_to_slice: kernels_hashmap!(program, "copy_to_slice", f32, i32),
@@ -153,6 +157,14 @@ impl Kernels {
 
     pub fn dsigmoid<T: Num>(&self) -> &Kernel {
         &self.dsigmoid[&TypeId::of::<T>()]
+    }
+
+    pub fn log<T: Num>(&self) -> &Kernel {
+        &self.log[&TypeId::of::<T>()]
+    }
+
+    pub fn exp<T: Num>(&self) -> &Kernel {
+        &self.exp[&TypeId::of::<T>()]
     }
 
     pub fn copy_to_slice<T: Num>(&self) -> &Kernel {

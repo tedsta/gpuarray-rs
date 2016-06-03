@@ -510,3 +510,21 @@ __kernel void array_dsigmoid_f32(__global float *a,
     b[i] = sigmoid(a[i]);
     b[i] = b[i]*(1.0 - b[i]);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// log
+
+__kernel void array_log_f32(__global float *a,
+                            __global float *b) {
+    uintptr_t i = get_global_id(0);
+    b[i] = log(a[i]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// exp
+
+__kernel void array_exp_f32(__global float *a,
+                            __global float *b) {
+    uintptr_t i = get_global_id(0);
+    b[i] = exp(a[i]);
+}
