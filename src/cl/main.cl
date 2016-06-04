@@ -272,6 +272,24 @@ __kernel void array_multiply_u64(__global const ulong *a,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+__kernel void array_divide_f32(__global const float *a,
+                               __global const float *b,
+                               __global float *c,
+                               const ulong cols,
+                               const int axis) {
+    ulong i = get_global_id(0);
+    ulong j = get_global_id(1);
+    if (axis == -1) {
+        c[i*cols + j] = a[i*cols + j] / b[i*cols + j];
+    } else if (axis == 0) {
+        c[i*cols + j] = a[i*cols + j] / b[j];
+    } else if (axis == 1) {
+        c[i*cols + j] = a[i*cols + j] / b[i];
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 __kernel void array_transpose_f32(__global const float *a,
                                    __global float *b,
                                    const ulong rows,
@@ -527,4 +545,13 @@ __kernel void array_exp_f32(__global float *a,
                             __global float *b) {
     uintptr_t i = get_global_id(0);
     b[i] = exp(a[i]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// negate
+
+__kernel void array_negate_f32(__global float *a,
+                               __global float *b) {
+    uintptr_t i = get_global_id(0);
+    b[i] = -a[i];
 }

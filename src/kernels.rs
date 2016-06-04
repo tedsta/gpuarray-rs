@@ -27,6 +27,7 @@ pub struct Kernels {
     add: HashMap<TypeId, Kernel>,
     sub: HashMap<TypeId, Kernel>,
     multiply: HashMap<TypeId, Kernel>,
+    divide: HashMap<TypeId, Kernel>,
     transpose: HashMap<TypeId, Kernel>,
     matmul: HashMap<TypeId, Kernel>,
     max: HashMap<TypeId, Kernel>,
@@ -41,6 +42,7 @@ pub struct Kernels {
     dsigmoid: HashMap<TypeId, Kernel>,
     log: HashMap<TypeId, Kernel>,
     exp: HashMap<TypeId, Kernel>,
+    negate: HashMap<TypeId, Kernel>,
 
     add_slice: HashMap<TypeId, Kernel>,
     copy_to_slice: HashMap<TypeId, Kernel>,
@@ -61,6 +63,7 @@ impl Kernels {
             add: kernels_hashmap!(program, "add", f32, i32),
             sub: kernels_hashmap!(program, "sub", f32),
             multiply: kernels_hashmap!(program, "multiply", f32, i32),
+            divide: kernels_hashmap!(program, "divide", f32),
             transpose: kernels_hashmap!(program, "transpose", f32, i32),
             matmul: kernels_hashmap!(program, "matmul", f32, i32),
             max: kernels_hashmap!(program, "max", f32),
@@ -75,6 +78,7 @@ impl Kernels {
             dsigmoid: kernels_hashmap!(program, "dsigmoid", f32),
             log: kernels_hashmap!(program, "log", f32),
             exp: kernels_hashmap!(program, "exp", f32),
+            negate: kernels_hashmap!(program, "negate", f32),
 
             add_slice: kernels_hashmap!(program, "add_slice", f32, i32),
             copy_to_slice: kernels_hashmap!(program, "copy_to_slice", f32, i32),
@@ -109,6 +113,10 @@ impl Kernels {
 
     pub fn multiply<T: Num>(&self) -> &Kernel {
         &self.multiply[&TypeId::of::<T>()]
+    }
+
+    pub fn divide<T: Num>(&self) -> &Kernel {
+        &self.divide[&TypeId::of::<T>()]
     }
 
     pub fn transpose<T: Num>(&self) -> &Kernel {
@@ -165,6 +173,10 @@ impl Kernels {
 
     pub fn exp<T: Num>(&self) -> &Kernel {
         &self.exp[&TypeId::of::<T>()]
+    }
+
+    pub fn negate<T: Num>(&self) -> &Kernel {
+        &self.negate[&TypeId::of::<T>()]
     }
 
     pub fn copy_to_slice<T: Num>(&self) -> &Kernel {

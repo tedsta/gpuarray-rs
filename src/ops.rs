@@ -87,6 +87,22 @@ pub fn multiply<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, 
     output.set_event(new_event);
 }
 
+pub fn divide<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, output: &Tensor<T>) {
+    let kernel = ctx.kernels().divide::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, b);
+    kernel.set_arg(2, output);
+    kernel.set_arg(3, &a.shape()[1]);
+    kernel.set_arg(4, &axis);
+
+    let new_event = {
+        let event_list: &[Option<Ref<Event>>] = &[a.get_event(), b.get_event()];
+        ctx.queue.enqueue_async_kernel(&kernel, (a.shape()[0], a.shape()[1]), None, event_list)
+    };
+    output.set_event(new_event);
+}
+
 pub fn transpose<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     let kernel = ctx.kernels().transpose::<T>();
 
@@ -249,6 +265,16 @@ pub fn log<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 
 pub fn exp<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     let kernel = ctx.kernels().exp::<T>();
+
+    kernel.set_arg(0, a);
+    kernel.set_arg(1, output);
+
+    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                    None, a.get_event().as_ref().map(|x| &**x)));
+}
+
+pub fn negate<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
+    let kernel = ctx.kernels().negate::<T>();
 
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
@@ -656,6 +682,24 @@ fn tensor_multiply_axis1() {
     assert!(a.buffer() == &[0,  0,  0,  0,  0,
                             5,  6,  7,  8,  9,
                             20, 22, 24, 26, 28]);
+}
+
+#[test]
+fn tensor_divide_axis1() {
+    let ref ctx = Context::new();
+
+    let a = Array::from_vec(vec![2, 5], (1..11).map(|x| x as f32).collect());
+    let b = Array::from_vec(vec![2, 1], (1..3).map(|x| x as f32).collect());
+
+    let a_cl = Tensor::from_array(ctx, &a, TensorMode::Mut);
+    let b_cl = Tensor::from_array(ctx, &b, TensorMode::In);
+
+    divide(ctx, &a_cl, 1, &b_cl, &a_cl); // a = a*b
+
+    let a = a_cl.get(ctx);
+
+    assert!(a.buffer() == &[1.0,  2.0,  3.0,  4.0,  5.0,
+                            3.0, 3.5, 4.0, 4.5, 5.0]);
 }
 
 #[test]
