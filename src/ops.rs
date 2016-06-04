@@ -219,8 +219,9 @@ pub fn tanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
 
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
+    let new_event = ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                   None, a.get_event().as_ref().map(|x| &**x));
+    output.set_event(new_event);
 }
 
 pub fn dtanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
@@ -229,8 +230,9 @@ pub fn dtanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
 
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
+    let new_event = ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                   None, a.get_event().as_ref().map(|x| &**x));
+    output.set_event(new_event);
 }
 
 pub fn sigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
@@ -239,8 +241,9 @@ pub fn sigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
 
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
+    let new_event = ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                   None, a.get_event().as_ref().map(|x| &**x));
+    output.set_event(new_event);
 }
 
 pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
@@ -249,8 +252,9 @@ pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
 
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
+    let new_event = ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                   None, a.get_event().as_ref().map(|x| &**x));
+    output.set_event(new_event);
 }
 
 pub fn log<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
@@ -259,8 +263,9 @@ pub fn log<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
 
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
+    let new_event = ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                   None, a.get_event().as_ref().map(|x| &**x));
+    output.set_event(new_event);
 }
 
 pub fn exp<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
@@ -269,8 +274,9 @@ pub fn exp<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
 
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
+    let new_event = ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                   None, a.get_event().as_ref().map(|x| &**x));
+    output.set_event(new_event);
 }
 
 pub fn negate<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
@@ -279,8 +285,9 @@ pub fn negate<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(0, a);
     kernel.set_arg(1, output);
 
-    output.set_event(ctx.queue.enqueue_async_kernel(&kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &**x)));
+    let new_event = ctx.queue.enqueue_async_kernel(&kernel, a.len(),
+                                                   None, a.get_event().as_ref().map(|x| &**x));
+    output.set_event(new_event);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
