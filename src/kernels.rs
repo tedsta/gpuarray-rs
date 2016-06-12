@@ -43,6 +43,7 @@ pub struct Kernels {
     log: HashMap<TypeId, Kernel>,
     exp: HashMap<TypeId, Kernel>,
     negate: HashMap<TypeId, Kernel>,
+    rmsprop: HashMap<TypeId, Kernel>,
 
     add_slice: HashMap<TypeId, Kernel>,
     copy_to_slice: HashMap<TypeId, Kernel>,
@@ -79,6 +80,7 @@ impl Kernels {
             log: kernels_hashmap!(program, "log", f32),
             exp: kernels_hashmap!(program, "exp", f32),
             negate: kernels_hashmap!(program, "negate", f32),
+            rmsprop: kernels_hashmap!(program, "rmsprop", f32),
 
             add_slice: kernels_hashmap!(program, "add_slice", f32, i32),
             copy_to_slice: kernels_hashmap!(program, "copy_to_slice", f32, i32),
@@ -177,6 +179,10 @@ impl Kernels {
 
     pub fn negate<T: Num>(&self) -> &Kernel {
         &self.negate[&TypeId::of::<T>()]
+    }
+
+    pub fn rmsprop<T: Num>(&self) -> &Kernel {
+        &self.rmsprop[&TypeId::of::<T>()]
     }
 
     pub fn copy_to_slice<T: Num>(&self) -> &Kernel {

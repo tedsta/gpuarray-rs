@@ -555,3 +555,13 @@ __kernel void array_negate_f32(__global float *a,
     uintptr_t i = get_global_id(0);
     b[i] = -a[i];
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// rmsprop
+
+__kernel void array_rmsprop_f32(__global float *x, __global float *dx, __global float *cache,
+                                float decay_rate, float eps) {
+    uintptr_t i = get_global_id(0);
+    cache[i] = decay_rate * cache[i] + (1.f - decay_rate) * dx[i]*dx[i];
+    x[i] += dx[i] / (sqrt(cache[i]) + eps);
+}

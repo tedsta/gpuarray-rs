@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::cell::{RefCell, Ref};
 
 use opencl;
@@ -22,7 +23,7 @@ pub struct Tensor<T: Num> {
     shape: Vec<usize>,
     dim_steps: Vec<usize>,
     buffer: CLBuffer<T>,
-    event: RefCell<Option<Event>>,
+    event: RefCell<Option<Rc<Event>>>,
 }
 
 impl<T: Num> Tensor<T> {
@@ -61,12 +62,12 @@ impl<T: Num> Tensor<T> {
     }
 
     pub fn get(&self, ctx: &Context) -> Array<T> {
-        let vec = ctx.queue.get(&self.buffer, self.get_event().as_ref().map(|x| &**x));
+        let vec = ctx.queue.get(&self.buffer, self.get_event().as_ref().map(|x| &***x));
         Array::from_vec(self.shape.clone(), vec)
     }
 
     pub fn read(&self, ctx: &Context, array: &mut Array<T>) {
-        ctx.queue.read(&self.buffer, &mut array.buffer_mut(), self.get_event().as_ref().map(|x| &**x));
+        ctx.queue.read(&self.buffer, &mut array.buffer_mut(), self.get_event().as_ref().map(|x| &***x));
     }
     
     pub fn set(&self, ctx: &Context, array: &Array<T>) {
@@ -85,11 +86,11 @@ impl<T: Num> Tensor<T> {
         self.buffer.len()
     }
     
-    pub fn set_event(&self, e: Event) {
+    pub fn set_event(&self, e: Rc<Event>) {
         *self.event.borrow_mut() = Some(e);
     }
 
-    pub fn get_event(&self) -> Option<Ref<Event>> {
+    pub fn get_event(&self) -> Option<Ref<Rc<Event>>> {
         if self.event.borrow().is_some() {
             ref_filter_map(self.event.borrow(), |o| o.as_ref())
         } else {
@@ -125,15 +126,15 @@ pub struct TensorView<'t, T: Num+'t, R: AsRef<[RangeArg]>> {
     pub dim_steps: &'t [usize],
     ranges: R,
     buffer: &'t CLBuffer<T>,
-    event: &'t RefCell<Option<Event>>,
+    event: &'t RefCell<Option<Rc<Event>>>,
 }
 
 impl<'t, T: Num, R: AsRef<[RangeArg]>> TensorView<'t, T, R> {
-    pub fn set_event(&self, e: Event) {
+    pub fn set_event(&self, e: Rc<Event>) {
         *self.event.borrow_mut() = Some(e);
     }
 
-    pub fn get_event(&self) -> Option<Ref<Event>> {
+    pub fn get_event(&self) -> Option<Ref<Rc<Event>>> {
         if self.event.borrow().is_some() {
             ref_filter_map(self.event.borrow(), |o| o.as_ref())
         } else {
