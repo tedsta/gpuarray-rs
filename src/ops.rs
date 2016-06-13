@@ -298,8 +298,9 @@ pub fn rmsprop<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, cache: &Ten
     kernel.set_arg(0, x);
     kernel.set_arg(1, dx);
     kernel.set_arg(2, cache);
-    kernel.set_arg(3, &decay_rate);
-    kernel.set_arg(4, &eps);
+    kernel.set_arg(3, &learn_rate);
+    kernel.set_arg(4, &decay_rate);
+    kernel.set_arg(5, &eps);
 
     let new_event = {
         let event_list: &[Option<Ref<Rc<Event>>>] = &[dx.get_event(), cache.get_event()];
