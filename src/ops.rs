@@ -292,7 +292,7 @@ pub fn negate<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     output.set_event(Rc::new(new_event));
 }
 
-pub fn rmsprop<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, cache: &Tensor<T>, decay_rate: f32, eps: f32) {
+pub fn rmsprop<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, cache: &Tensor<T>, learn_rate: f32, decay_rate: f32, eps: f32) {
     let kernel = ctx.kernels().rmsprop::<T>();
 
     kernel.set_arg(0, x);
