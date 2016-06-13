@@ -292,6 +292,20 @@ pub fn negate<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     output.set_event(Rc::new(new_event));
 }
 
+pub fn sgd<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, learn_rate: f32) {
+    let kernel = ctx.kernels().sgd::<T>();
+
+    kernel.set_arg(0, x);
+    kernel.set_arg(1, dx);
+    kernel.set_arg(2, &learn_rate);
+
+    let new_event = {
+        let event_list: &[Option<Ref<Rc<Event>>>] = &[x.get_event(), dx.get_event()];
+        ctx.queue.enqueue_async_kernel(&kernel, x.len(), None, event_list)
+    };
+    x.set_event(Rc::new(new_event));
+}
+
 pub fn rmsprop<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, cache: &Tensor<T>, learn_rate: f32, decay_rate: f32, eps: f32) {
     let kernel = ctx.kernels().rmsprop::<T>();
 
@@ -303,7 +317,7 @@ pub fn rmsprop<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, cache: &Ten
     kernel.set_arg(5, &eps);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[dx.get_event(), cache.get_event()];
+        let event_list: &[Option<Ref<Rc<Event>>>] = &[x.get_event(), dx.get_event(), cache.get_event()];
         ctx.queue.enqueue_async_kernel(&kernel, x.len(), None, event_list)
     };
     let new_event = Rc::new(new_event);

@@ -557,6 +557,14 @@ __kernel void array_negate_f32(__global float *a,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// sgd
+
+__kernel void array_sgd_f32(__global float *x, __global float *dx, float learn_rate) {
+    uintptr_t i = get_global_id(0);
+    x[i] += learn_rate*dx[i];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // rmsprop
 
 __kernel void array_rmsprop_f32(__global float *x, __global float *dx, __global float *cache,
