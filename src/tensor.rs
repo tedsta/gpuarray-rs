@@ -5,7 +5,6 @@ use opencl;
 use opencl::hl::KernelArg;
 use opencl::mem::{Buffer, CLBuffer};
 use libc;
-use ref_filter_map::ref_filter_map;
 
 use array::Array;
 use context::Context;
@@ -23,7 +22,7 @@ pub struct Tensor<T: Num> {
     shape: Vec<usize>,
     dim_steps: Vec<usize>,
     buffer: CLBuffer<T>,
-    event: RefCell<Option<Rc<Event>>>,
+    event: RefCell<Rc<Event>>,
 }
 
 impl<T: Num> Tensor<T> {
@@ -40,7 +39,7 @@ impl<T: Num> Tensor<T> {
             shape: shape,
             dim_steps: dim_steps,
             buffer: ctx.ctx.create_buffer(buf_size, mem_mode),
-            event: RefCell::new(None),
+            event: RefCell::new(Rc::new(Event::new_complete(&ctx.ctx))),
         }
     }
 
@@ -57,17 +56,17 @@ impl<T: Num> Tensor<T> {
             shape: array.shape().to_vec(),
             dim_steps: array.dim_steps().to_owned(),
             buffer: ctx.ctx.create_buffer_from(array.buffer(), mem_mode),
-            event: RefCell::new(None),
+            event: RefCell::new(Rc::new(Event::new_complete(&ctx.ctx))),
         }
     }
 
     pub fn get(&self, ctx: &Context) -> Array<T> {
-        let vec = ctx.queue.get(&self.buffer, self.get_event().as_ref().map(|x| &***x));
+        let vec = ctx.queue.get(&self.buffer, &**self.get_event());
         Array::from_vec(self.shape.clone(), vec)
     }
 
     pub fn read(&self, ctx: &Context, array: &mut Array<T>) {
-        ctx.queue.read(&self.buffer, &mut array.buffer_mut(), self.get_event().as_ref().map(|x| &***x));
+        ctx.queue.read(&self.buffer, &mut array.buffer_mut(), &**self.get_event());
     }
     
     pub fn set(&self, ctx: &Context, array: &Array<T>) {
@@ -87,15 +86,11 @@ impl<T: Num> Tensor<T> {
     }
     
     pub fn set_event(&self, e: Rc<Event>) {
-        *self.event.borrow_mut() = Some(e);
+        *self.event.borrow_mut() = e;
     }
 
-    pub fn get_event(&self) -> Option<Ref<Rc<Event>>> {
-        if self.event.borrow().is_some() {
-            ref_filter_map(self.event.borrow(), |o| o.as_ref())
-        } else {
-            None
-        }
+    pub fn get_event(&self) -> Ref<Rc<Event>> {
+        self.event.borrow()
     }
 
     pub fn slice<'t, R: AsRef<[RangeArg]>>(&'t self, r: R) -> TensorView<'t, T, R> {
@@ -126,20 +121,16 @@ pub struct TensorView<'t, T: Num+'t, R: AsRef<[RangeArg]>> {
     pub dim_steps: &'t [usize],
     ranges: R,
     buffer: &'t CLBuffer<T>,
-    event: &'t RefCell<Option<Rc<Event>>>,
+    event: &'t RefCell<Rc<Event>>,
 }
 
 impl<'t, T: Num, R: AsRef<[RangeArg]>> TensorView<'t, T, R> {
     pub fn set_event(&self, e: Rc<Event>) {
-        *self.event.borrow_mut() = Some(e);
+        *self.event.borrow_mut() = e;
     }
 
-    pub fn get_event(&self) -> Option<Ref<Rc<Event>>> {
-        if self.event.borrow().is_some() {
-            ref_filter_map(self.event.borrow(), |o| o.as_ref())
-        } else {
-            None
-        }
+    pub fn get_event(&self) -> Ref<Rc<Event>> {
+        self.event.borrow()
     }
 
     pub fn view_offset(&self, dim: usize) -> usize {

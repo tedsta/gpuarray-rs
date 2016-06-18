@@ -14,7 +14,7 @@ pub fn copy_to<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
 
     output.set_event(Rc::new(ctx.queue
                                 .enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                      None, a.get_event().as_ref().map(|x| &***x))));
+                                                      None, &**a.get_event())));
 }
 
 pub fn fill<T: Num>(ctx: &Context, a: &Tensor<T>, val: T) {
@@ -38,7 +38,7 @@ pub fn sum<T: Num>(ctx: &Context, a: &Tensor<T>, axis: usize, b: &Tensor<T>) {
     let keep_dim = [a.shape()[1], a.shape()[0]][axis];
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, keep_dim, None, a.get_event().as_ref().map(|x| &***x))
+        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, keep_dim, None, &**a.get_event())
     };
     b.set_event(Rc::new(new_event));
 }
@@ -53,7 +53,7 @@ pub fn add<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, outpu
     kernel.set_arg(4, &axis);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), b.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.shape()[0], a.shape()[1]), None, event_list)
     };
     output.set_event(Rc::new(new_event));
@@ -67,7 +67,7 @@ pub fn sub<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<
     kernel.set_arg(2, output);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), b.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(), None, event_list)
     };
     output.set_event(Rc::new(new_event));
@@ -83,7 +83,7 @@ pub fn multiply<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, 
     kernel.set_arg(4, &axis);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), b.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.shape()[0], a.shape()[1]), None, event_list)
     };
     output.set_event(Rc::new(new_event));
@@ -99,7 +99,7 @@ pub fn divide<T: Num>(ctx: &Context, a: &Tensor<T>, axis: i32, b: &Tensor<T>, ou
     kernel.set_arg(4, &axis);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), b.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.shape()[0], a.shape()[1]), None, event_list)
     };
     output.set_event(Rc::new(new_event));
@@ -114,7 +114,7 @@ pub fn transpose<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(3, &a.shape()[1]);
 
     output.set_event(Rc::new(ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.shape()[0], a.shape()[1]),
-                                                    None, a.get_event().as_ref().map(|x| &***x))));
+                                                    None, &**a.get_event())));
 }
 
 pub fn matmul<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tensor<T>) {
@@ -127,7 +127,7 @@ pub fn matmul<T: Num>(ctx: &Context, a: &Tensor<T>, b: &Tensor<T>, output: &Tens
     kernel.set_arg(4, &b.shape()[1]);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), b.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel,
                                        (a.shape()[0], b.shape()[1]),
                                        None, event_list)
@@ -143,7 +143,7 @@ pub fn max<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T
     kernel.set_arg(2, &threshold);
 
     output.set_event(Rc::new(ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &***x))));
+                                                    None, &**a.get_event())));
 }
 
 pub fn dmax<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
@@ -154,7 +154,7 @@ pub fn dmax<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<
     kernel.set_arg(2, &threshold);
 
     output.set_event(Rc::new(ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &***x))));
+                                                    None, &**a.get_event())));
 }
 
 pub fn min<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
@@ -165,7 +165,7 @@ pub fn min<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T
     kernel.set_arg(2, &threshold);
 
     output.set_event(Rc::new(ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &***x))));
+                                                    None, &**a.get_event())));
 }
 
 pub fn dmin<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<T>) {
@@ -176,7 +176,7 @@ pub fn dmin<T: Num>(ctx: &Context, a: &Tensor<T>, threshold: T, output: &Tensor<
     kernel.set_arg(2, &threshold);
 
     output.set_event(Rc::new(ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                    None, a.get_event().as_ref().map(|x| &***x))));
+                                                    None, &**a.get_event())));
 }
 
 pub fn mse<T: Num>(ctx: &Context, a: &Tensor<T>, train: &Tensor<T>, output: &Tensor<T>) {
@@ -189,7 +189,7 @@ pub fn mse<T: Num>(ctx: &Context, a: &Tensor<T>, train: &Tensor<T>, output: &Ten
     kernel.set_arg(4, &a.shape()[1]);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), train.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), train.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel,
                                        a.shape()[1],
                                        None, event_list)
@@ -207,7 +207,7 @@ pub fn dmse<T: Num>(ctx: &Context, a: &Tensor<T>, train: &Tensor<T>, output: &Te
     kernel.set_arg(4, &a.shape()[1]);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), train.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), train.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel,
                                        (a.shape()[0], a.shape()[1]),
                                        None, event_list)
@@ -222,7 +222,7 @@ pub fn tanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(1, output);
 
     let new_event = ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                   None, a.get_event().as_ref().map(|x| &***x));
+                                                   None, &**a.get_event());
     output.set_event(Rc::new(new_event));
 }
 
@@ -233,7 +233,7 @@ pub fn dtanh<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(1, output);
 
     let new_event = ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                   None, a.get_event().as_ref().map(|x| &***x));
+                                                   None, &**a.get_event());
     output.set_event(Rc::new(new_event));
 }
 
@@ -244,7 +244,7 @@ pub fn sigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(1, output);
 
     let new_event = ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                   None, a.get_event().as_ref().map(|x| &***x));
+                                                   None, &**a.get_event());
     output.set_event(Rc::new(new_event));
 }
 
@@ -255,7 +255,7 @@ pub fn dsigmoid<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(1, output);
 
     let new_event = ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                   None, a.get_event().as_ref().map(|x| &***x));
+                                                   None, &**a.get_event());
     output.set_event(Rc::new(new_event));
 }
 
@@ -266,7 +266,7 @@ pub fn log<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(1, output);
 
     let new_event = ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                   None, a.get_event().as_ref().map(|x| &***x));
+                                                   None, &**a.get_event());
     output.set_event(Rc::new(new_event));
 }
 
@@ -277,7 +277,7 @@ pub fn exp<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(1, output);
 
     let new_event = ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                   None, a.get_event().as_ref().map(|x| &***x));
+                                                   None, &**a.get_event());
     output.set_event(Rc::new(new_event));
 }
 
@@ -288,7 +288,7 @@ pub fn negate<T: Num>(ctx: &Context, a: &Tensor<T>, output: &Tensor<T>) {
     kernel.set_arg(1, output);
 
     let new_event = ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, a.len(),
-                                                   None, a.get_event().as_ref().map(|x| &***x));
+                                                   None, &**a.get_event());
     output.set_event(Rc::new(new_event));
 }
 
@@ -300,7 +300,7 @@ pub fn sgd<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, learn_rate: f32
     kernel.set_arg(2, &learn_rate);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[x.get_event(), dx.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[x.get_event(), dx.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, x.len(), None, event_list)
     };
     x.set_event(Rc::new(new_event));
@@ -317,7 +317,7 @@ pub fn rmsprop<T: Num>(ctx: &Context, x: &Tensor<T>, dx: &Tensor<T>, cache: &Ten
     kernel.set_arg(5, &eps);
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[x.get_event(), dx.get_event(), cache.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[x.get_event(), dx.get_event(), cache.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, x.len(), None, event_list)
     };
     let new_event = Rc::new(new_event);
@@ -372,7 +372,7 @@ pub fn fill_slice<T: Num, AR: AsRef<[RangeArg]>>(ctx: &Context, a: &TensorView<T
     }
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, work_dim, None, a.get_event().as_ref().map(|x| &***x))
+        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, work_dim, None, &**a.get_event())
     };
     a.set_event(Rc::new(new_event));
 }
@@ -404,7 +404,7 @@ pub fn copy_to_slice<T: Num, AR, BR>(ctx: &Context,
     }
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, work_dim, None, a.get_event().as_ref().map(|x| &***x))
+        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, work_dim, None, &**a.get_event())
     };
     b.set_event(Rc::new(new_event));
 }
@@ -443,7 +443,7 @@ pub fn add_slice<T: Num, AR, BR, CR>(ctx: &Context,
     }
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), b.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, work_dim, None, event_list)
     };
     out.set_event(Rc::new(new_event));
@@ -483,7 +483,7 @@ pub fn multiply_slice<T: Num, AR, BR, CR>(ctx: &Context,
     }
 
     let new_event = {
-        let event_list: &[Option<Ref<Rc<Event>>>] = &[a.get_event(), b.get_event()];
+        let event_list: &[Ref<Rc<Event>>] = &[a.get_event(), b.get_event()];
         ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, work_dim, None, event_list)
     };
     out.set_event(Rc::new(new_event));
@@ -507,7 +507,7 @@ pub fn sigmoid_slice<T: Num, AR, BR>(ctx: &Context,
     kernel.set_arg(7, &b.shape[1]);
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &***x))
+        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, &**a.get_event())
     };
     b.set_event(Rc::new(new_event));
 }
@@ -530,7 +530,7 @@ pub fn dsigmoid_slice<T: Num, AR, BR>(ctx: &Context,
     kernel.set_arg(7, &b.shape[1]);
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &***x))
+        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, &**a.get_event())
     };
     b.set_event(Rc::new(new_event));
 }
@@ -553,7 +553,7 @@ pub fn tanh_slice<T: Num, AR, BR>(ctx: &Context,
     kernel.set_arg(7, &b.shape[1]);
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &***x))
+        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, &**a.get_event())
     };
     b.set_event(Rc::new(new_event));
 }
@@ -576,7 +576,7 @@ pub fn dtanh_slice<T: Num, AR, BR>(ctx: &Context,
     kernel.set_arg(7, &b.shape[1]);
 
     let new_event = {
-        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, a.get_event().as_ref().map(|x| &***x))
+        ctx.queue.enqueue_async_kernel(&ctx.ctx, &kernel, (a.view_shape(0), a.view_shape(1)), None, &**a.get_event())
     };
     b.set_event(Rc::new(new_event));
 }
