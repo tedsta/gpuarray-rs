@@ -17,7 +17,7 @@ impl Context {
                                   include_str!("cl/main.cl"),
                                   include_str!("cl/slice_ops.cl"));
 
-        let (device, ctx, queue) = opencl::util::create_compute_context().unwrap();
+        let (device, ctx, queue) = opencl::util::create_compute_context_prefer(opencl::util::PreferedType::GPUPrefered).unwrap();
 
         println!("Using OpenCL Device: {}", device.name());
 
