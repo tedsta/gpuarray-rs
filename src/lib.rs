@@ -1,6 +1,3 @@
-#![feature(iter_arith)]
-#![feature(reflect_marker)]
-
 extern crate opencl;
 extern crate libc;
 
